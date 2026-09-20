@@ -1,6 +1,6 @@
 
 const INITIAL_PRIORS = {};
-const APP_VERSION = "0.1.1";
+const APP_VERSION = "0.1.2";
 const STORAGE_KEY = "adaptive_verbs_catala_campaign1_v1";
 const GLOBAL_LEVEL_KEY = "adaptive_verbs_catala_global_level_v1";
 const SESSION_SIZE = 15;
@@ -335,7 +335,7 @@ function visibleCard(q){
 function renderVerbPrompt(q,fallback=""){
   const el=$("questionText");if(!el)return;
   if(!q?.lemma){el.textContent=fallback;return;}
-  el.innerHTML='<span class="verb-prompt">'+escapeHtml(String(q.lemma).toUpperCase())+'</span><span class="tense-prompt">'+escapeHtml(q.tenseLabel||"")+'</span><span class="person-prompt">'+escapeHtml(q.personLabel||"")+'</span>';
+  el.innerHTML='<span class="verb-prompt">'+escapeHtml(String(q.lemma).toUpperCase())+'</span><span class="tense-prompt">'+escapeHtml(String(q.tenseLabel||"").toUpperCase())+'</span><span class="person-prompt">'+escapeHtml(q.personLabel||"")+'</span>';
 }
 function focusMarkup(text,answer,fragments=[]){
   text=String(text);const ranges=[];

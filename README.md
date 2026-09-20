@@ -5,7 +5,8 @@ PWA gamificada i adaptativa derivada tècnicament d'Adaptive English, dedicada e
 ## Campaign 1
 Una sola campanya longitudinal. El pilot NO és el final: és el primer banc activat.
 
-### Pilot v0.1.1
+### Pilot v0.1.2
+- Millora de jerarquia visual de la pregunta: temps/mode més gran, opacitat completa i banda pròpia; persona subordinada visualment.
 - 10 verbs: parlar, perdre, dormir, servir, anar, fer, tenir, poder, voler, veure.
 - 3 paradigmes: present d'indicatiu, present de subjuntiu, imperfet de subjuntiu.
 - 6 persones = 180 formes canòniques.
