@@ -509,21 +509,21 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
       <div class="track"><div id="masteryFill" class="fill mastery" style="width:0%"></div></div>
     </div>
     <div class="grid">
-      <div class="card"><b id="startFluency">—</b><span>AE rating</span></div>
+      <div class="card"><b id="startFluency">—</b><span>Verb control</span></div>
       <div class="card"><b id="startAccuracy">—</b><span>Recent accuracy</span></div>
       <div class="card"><b id="startAvg">—</b><span>Avg response</span></div>
       <div class="card lifetime-score-card"><b id="startAllAccuracy">-</b><span>Avg hits /15</span></div>
       <div class="card"><b id="startAuto">—</b><span>Automatic</span></div>
-      <div class="card"><b id="startMastered">0/25</b><span>Keys mastered</span></div>
+      <div class="card"><b id="startMastered">0/10</b><span>Verbs mastered</span></div>
       <div class="card"><b id="startTotal">0</b><span>Total answers</span></div>
       <div class="card study-time-card"><b id="startStudyTime">0s</b><span>Active training time</span></div>
     </div>
     <div class="start-phrase-grid">
       <div class="card"><b id="startPhrasesDone">0</b><span>Forms seen</span></div>
-      <div class="card"><b id="startRepeatedPhrases">0</b><span>Repeated phrases</span></div>
+      <div class="card"><b id="startRepeatedPhrases">0</b><span>Repeated forms</span></div>
     </div>
     <section id="startFocusPanel" class="focus-panel"></section>
-    <div class="peer-box"><div class="peer-head"><span>TYPICAL LEARNER · PACE</span><b id="startPeerDelta" class="peer-delta neutral">—</b></div><small id="startPeerStatus">Model-based typical range · not measured users</small></div>
+    <div class="peer-box"><div class="peer-head"><span>CAMPAIGN 1 · PACE</span><b id="startPeerDelta" class="peer-delta neutral">—</b></div><small id="startPeerStatus">Model-based typical range · not measured users</small></div>
     <div id="campaign2Box" class="next-campaign-box"><div class="next-campaign-head"><div><span>GRADUATION READINESS</span><b id="campaign2Score">0%</b></div><em id="campaign2Stage">Building foundation</em></div><div class="track"><div id="campaign2Fill" class="fill" style="width:0%"></div></div><p id="campaign2Status">Keep training to build evidence.</p><div id="campaign2PracticeEstimate" class="campaign-eta-mini"></div><button id="campaign2Copy" class="ghost small hidden">COPY HANDOFF FOR CHATGPT</button></div>
     <div id="campaignStatus" class="statusbox"></div>
     <div class="actions"><button id="startBtn" class="primary">START</button></div>
@@ -548,7 +548,7 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 <section id="statsScreen" class="screen dashboard-screen hidden">
   <div class="panel">
     <div class="top-dashboard-nav"><button id="statsTopDashboardBtn" class="ghost">DASHBOARD</button></div>
-    <div class="resulttitle"><div class="kicker">DASHBOARD · v3.0</div><h1>Statistics</h1><p>Your full learning snapshot before the next level.</p></div>
+    <div class="resulttitle"><div class="kicker">DASHBOARD · v0.1.1</div><h1>Statistics</h1><p>Longitudinal snapshot before the next level.</p></div>
     <div class="ai-valuation-box"><div><span>AI VALORATION</span><b id="statsAiLevel">— / 15</b><small id="statsAiConfidence">Adaptive estimate</small></div><em>AI</em></div>
     <div class="learning-score-box"><div><span>LEARNING SCORE</span><b id="statsLearningScore">—</b><small id="statsLearningWindow">Long-term curve</small></div><div id="statsLearningDelta" class="learning-direction neutral">→</div></div>
     <div class="peer-box"><div class="peer-head"><span>TYPICAL LEARNER MODEL</span><b id="statsPeerDelta" class="peer-delta neutral">—</b></div><div class="peer-values"><div><b id="statsPeerYou">—</b><span>You</span></div><div><b id="statsPeerHealthy">—</b><span>Healthy min</span></div><div><b id="statsPeerExpected">—</b><span>Typical</span></div><div><b id="statsPeerStrong">—</b><span>Strong pace</span></div><div><b id="statsPeerDeltaMini">±0</b><span>Pace</span></div></div><small id="statsPeerLabel">Model-based typical range · not measured users</small></div>
@@ -556,7 +556,7 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
     <section id="statsFocusPanel" class="focus-panel stats-focus-panel"></section>
     <div class="charts stats-charts"><div class="section score-section"><div class="chart-title-row"><h3>Correct answers · /15</h3><button id="scoreExpandBtn" class="ghost small">EXPAND</button></div><div id="statsAccuracyChart"></div></div><div class="section learning-trend"><h3>Learning Curve · long-term</h3><div id="statsLearningChart"></div></div></div>
     <div class="section target-stats-section"><h3>Target performance</h3><div class="grid target-grid"><div class="card"><b id="targetAvg">—</b><span>Avg target /15</span></div><div class="card"><b id="targetActualAvg">—</b><span>Avg actual /15</span></div><div class="card"><b id="targetDeltaAvg">—</b><span>Avg vs target</span></div><div class="card"><b id="targetHitRate">—</b><span>Targets met</span></div></div><div id="targetBreakdown" class="statusbox"></div></div>
-    <div class="section reading-load-section"><h3>Reading load · fixed 6s</h3><p class="meta">Observational only · the timer and adaptive engine do not change from these measurements.</p><div class="grid"><div class="card"><b id="readingShort">—</b><span>Short · ≤12 words</span><small id="readingShortMeta">No evidence yet</small></div><div class="card"><b id="readingMedium">—</b><span>Medium · 13–17 words</span><small id="readingMediumMeta">No evidence yet</small></div><div class="card"><b id="readingLong">—</b><span>Long · ≥18 words</span><small id="readingLongMeta">No evidence yet</small></div></div><div id="readingLoadInsight" class="statusbox">Building evidence.</div></div>
+    <div class="section reading-load-section"><h3>Reading load · fixed 6s</h3><p class="meta">Observational only · el cronòmetre es manté fix durant el pilot.</p><div class="grid"><div class="card"><b id="readingShort">—</b><span>Short · ≤12 words</span><small id="readingShortMeta">No evidence yet</small></div><div class="card"><b id="readingMedium">—</b><span>Medium · 13–17 words</span><small id="readingMediumMeta">No evidence yet</small></div><div class="card"><b id="readingLong">—</b><span>Long · ≥18 words</span><small id="readingLongMeta">No evidence yet</small></div></div><div id="readingLoadInsight" class="statusbox">Building evidence.</div></div>
     <div id="statsCampaign2" class="statusbox"></div>
     <div class="section"><h3>Verb League · current ranking</h3><div id="statsSkills"></div></div><div class="section"><h3>Tense League · current ranking</h3><div id="statsTenses"></div></div>
     <div class="screen-nav"><button id="statsBackBtn" class="primary">BACK TO DASHBOARD</button></div>
@@ -575,7 +575,7 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 <section id="coachScreen" class="screen dashboard-screen hidden">
   <div class="panel">
     <div class="top-dashboard-nav"><button id="coachTopDashboardBtn" class="ghost">DASHBOARD</button></div>
-    <div class="resulttitle"><div class="kicker">MY COACH · LIVE</div><h1>Study file</h1><p>What the algorithm thinks you should review right now.</p></div>
+    <div class="resulttitle"><div class="kicker">MY COACH · LIVE</div><h1>Study file</h1><p>What the algorithm thinks you should review in Catalan verbs right now.</p></div>
     <div id="localCoachReport" class="local-coach-report"></div>
     <div id="coachIntro" class="statusbox"></div>
     <div class="section"><h3>Focus now</h3><div id="coachFocus" class="coach-grid"></div></div>
@@ -620,10 +620,10 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
     <div class="grid">
       <div class="card"><b id="eAvg">0.0s</b><span>Avg time</span><div id="dTime"></div></div>
       <div class="card"><b id="eAuto">0%</b><span>Automatic</span></div>
-      <div class="card"><b id="eFluency">0</b><span>AE rating</span><div id="dFlu"></div></div>
+      <div class="card"><b id="eFluency">0</b><span>Verb control</span><div id="dFlu"></div></div>
       <div class="card"><b id="eCoverage">0%</b><span>Coverage</span></div>
       <div class="card"><b id="eMastery">0%</b><span>Mastery</span></div>
-      <div class="card"><b id="eMastered">0/25</b><span>Keys mastered</span><div id="dAcc"></div></div>
+      <div class="card"><b id="eMastered">0/10</b><span>Verbs mastered</span><div id="dAcc"></div></div>
     </div>
     <div class="learning-score-box"><div><span>LEARNING SCORE</span><b id="learningScore">—</b><small id="learningScoreWindow">Media móvil</small></div><div id="learningScoreDelta" class="learning-direction neutral">→</div></div>
     <div id="campaign2End" class="statusbox next-campaign-end hidden"></div>
@@ -652,7 +652,7 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 <section id="errorsScreen" class="screen review hidden">
   <div class="panel">
     <div class="top-dashboard-nav"><button id="errorsTopDashboardBtn" class="ghost">DASHBOARD</button></div>
-    <div class="resulttitle error-lab-hero"><div class="kicker">ERROR LAB · v3.0</div><h1>Latest mistakes</h1><p id="errorsCount"></p><small>Solo contiene los errores del nivel que acabas de terminar.</small></div>
+    <div class="resulttitle error-lab-hero"><div class="kicker">ERROR LAB · v0.1.1</div><h1>Latest mistakes</h1><p id="errorsCount"></p><small>Solo contiene los errores del nivel que acabas de terminar.</small></div>
     <div class="error-session-handoff"><button id="errorsSessionCopyBtn" class="secondary">COPY SESSION ERRORS JSON</button><small>Todos los errores del nivel + grupos + fingerprints + guía de contraste con español.</small></div>
     <div id="errorsFull" class="errors"></div>
     <div class="actions"><button id="errorsBackBtn" class="primary">BACK TO RESULTS</button></div>
