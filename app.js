@@ -81,55 +81,14 @@ function playLevelScore(correct,total=15){
   if(rank>=13){const finale=(intervals.length-1)*step+.07;tone(root/2,.22,gain*.8,'sine',finale);[0,4,7,12].forEach((semi,i)=>tone(semitoneHz(root,semi),rank===15?.28:.20,gain*(rank===15?.72:.55),i%2?'sine':'triangle',finale+i*.012));}
   if(rank===15){const crown=(intervals.length-1)*step+.30;[12,16,19,24].forEach((semi,i)=>tone(semitoneHz(root,semi),.18,.012,'sine',crown+i*.045));}
 }
-const MEMORY_ECHOES={
-  would_rather:{title:"Rather Be",artist:"Clean Bandit",cue:"WOULD RATHER"},
-  inversion:{title:"Never Ever",artist:"All Saints",cue:"NEGATIVE FIRST → INVERSION"},
-  third_conditional:{title:"If I Could Turn Back Time",artist:"Cher",cue:"PAST IMPOSSIBLE"},
-  allow_to:{title:"Permission to Dance",artist:"BTS",cue:"ALLOW + OBJECT + TO"},
-  neednt_have:{title:"No Need to Argue",artist:"The Cranberries",cue:"DID IT · NOT NECESSARY"},
-  should_have:{title:"Should've Said No",artist:"Taylor Swift",cue:"PAST ADVICE / REGRET"},
-  modal_deduction:{title:"It Must Have Been Love",artist:"Roxette",cue:"MODAL + HAVE + PARTICIPLE"},
-  wish_past:{title:"Back to December",artist:"Taylor Swift",cue:"WISH + HAD + PARTICIPLE"},
-  wish_present:{title:"Wish You Were Here",artist:"Pink Floyd",cue:"WISH + PAST SIMPLE"},
-  mixed_conditional:{title:"The Scientist",artist:"Coldplay",cue:"PAST CAUSE → NOW RESULT"},
-  causative:{title:"Fix You",artist:"Coldplay",cue:"HAVE + OBJECT + PARTICIPLE"},
-  passive:{title:"Written in the Stars",artist:"Tinie Tempah",cue:"BE + PARTICIPLE"},
-  backshift:{title:"She Said She Said",artist:"The Beatles",cue:"SAID → BACKSHIFT"},
-  past_perfect:{title:"Already Gone",artist:"Kelly Clarkson",cue:"EARLIER PAST → HAD"},
-  unless:{title:"If I Ain't Got You",artist:"Alicia Keys",cue:"UNLESS = IF NOT"},
-  despite:{title:"I'm Still Standing",artist:"Elton John",cue:"DESPITE + NOUN / -ING"},
-  look_forward:{title:"I Can't Wait",artist:"Nu Shooz",cue:"LOOK FORWARD TO + -ING"},
-  get_used_to:{title:"Getting Used to You",artist:"Selena",cue:"GET USED TO + -ING"},
-  used_to:{title:"Somebody That I Used to Know",artist:"Gotye",cue:"USED TO + INFINITIVO SIN TO"},
-  make_bare:{title:"(You Make Me Feel Like) A Natural Woman",artist:"Aretha Franklin",cue:"MAKE/MADE → NO TO · MAKE ME FEEL"},
-  whose:{title:"Whose Bed Have Your Boots Been Under?",artist:"Shania Twain",cue:"WHOSE + NOUN"},
-  second_conditional:{title:"If I Were a Boy",artist:"Beyoncé",cue:"IF + PAST → WOULD"},
-  had_better:{title:"You Better Run",artist:"Pat Benatar",cue:"HAD BETTER + INFINITIVO SIN TO"}
-};
-function learningTerminology(text){
-  return String(text??"")
-    .replace(/\bBASE VERB\b/g,"INFINITIVO SIN TO")
-    .replace(/\bbase verb\b/gi,"infinitivo sin to")
-    .replace(/\bbare infinitive\b/gi,"infinitivo sin to")
-    .replace(/\bbase form of the verb\b/gi,"infinitivo sin to")
-    .replace(/\bbase form\b/gi,"infinitivo sin to")
-    .replace(/\bforma base\b/gi,"infinitivo sin to")
-    .replace(/\bverbo base\b/gi,"infinitivo sin to")
-    .replace(/\bverbo desnudo\b/gi,"infinitivo sin to");
-}
+const MEMORY_ECHOES={};
+function learningTerminology(text){return String(text??"");}
 const DISCOVERY_CARDS=[];
 function unlockedDiscoveryCards(){const today=localDateKey();return DISCOVERY_CARDS.filter(x=>!x.releasedOn||x.releasedOn<=today);}
-function memoryEchoFor(cat,correctAnswer=""){
-  if(cat==="so_such")return /\bsuch\b/i.test(correctAnswer)?{title:"Such Great Heights",artist:"The Postal Service",cue:"SUCH + NOUN"}:{title:"So What",artist:"P!nk",cue:"SO + ADJECTIVE"};
-  if(cat==="too_enough")return /\benough\b/i.test(correctAnswer)?{title:"Never Enough",artist:"Loren Allred",cue:"ADJECTIVE + ENOUGH"}:{title:"Too Much",artist:"Spice Girls",cue:"TOO + ADJECTIVE"};
-  return MEMORY_ECHOES[cat]||null;
-}
+function memoryEchoFor(){return null;}
 function spotifySearchUrl(e){return e?`https://open.spotify.com/search/${encodeURIComponent(`${e.artist} ${e.title}`)}`:"";}
 function spotifyOpenHtml(e,cls="spotify-open"){if(!e)return "";return `<a class="${cls}" href="${escapeHtml(spotifySearchUrl(e))}" target="_blank" rel="noopener noreferrer">▶ OPEN IN SPOTIFY</a>`;}
-function keyMemoryEchoHtml(cat){
-  const x=memoryEchoFor(cat,cat==="so_such"?"such":cat==="too_enough"?"enough":"");if(!x)return "";
-  return `<em class="key-memory-echo"><small>MUSIC ECHO</small><span>${escapeHtml(x.artist)} · ${escapeHtml(x.title)}</span><b>${escapeHtml(x.cue)}</b></em>`;
-}
+function keyMemoryEchoHtml(){return "";}
 function showMemoryEcho(cat,correctAnswer=""){
   const el=$("memoryEcho"),x=memoryEchoFor(cat,correctAnswer);if(!el||!x)return;
   el.innerHTML=`<b>${escapeHtml(x.title)}</b><span>${escapeHtml(x.artist)}</span>`;
@@ -200,22 +159,10 @@ function normaliseProgressState(s){
   s.focusTimeByDate=s.focusTimeByDate&&typeof s.focusTimeByDate==="object"?s.focusTimeByDate:{};s.focusTargetsByDate=s.focusTargetsByDate&&typeof s.focusTargetsByDate==="object"?s.focusTargetsByDate:{};if(!Number.isFinite(s.focusTrackingStartedAt))s.focusTrackingStartedAt=Date.now();
   s.sessionHistory=Array.isArray(s.sessionHistory)?s.sessionHistory.slice(-SESSION_HISTORY_LIMIT):[];
   s.seen=s.seen&&typeof s.seen==="object"?s.seen:{};s.templateLast=s.templateLast&&typeof s.templateLast==="object"?s.templateLast:{};s.templateSeen=s.templateSeen&&typeof s.templateSeen==="object"?s.templateSeen:{};
-  s.dailyKey=s.dailyKey&&typeof s.dailyKey==="object"?s.dailyKey:{date:"",cat:""};s.keyring=Array.isArray(s.keyring)?s.keyring.filter(x=>x&&typeof x.cat==="string").slice(0,25):[];const firstKeyDate=s.keyring.map(x=>x.firstDate).filter(Boolean).sort()[0]||s.dailyKey.date||"";s.keyJourneyStart=typeof s.keyJourneyStart==="string"&&s.keyJourneyStart?s.keyJourneyStart:firstKeyDate;s.keyring.forEach((x,i)=>x.number=i+1);const rebuildTemplateSeen=!Object.keys(s.templateSeen).length;
+  s.dailyKey=s.dailyKey&&typeof s.dailyKey==="object"?s.dailyKey:{date:"",cat:""};s.keyring=Array.isArray(s.keyring)?s.keyring.filter(x=>x&&typeof x.cat==="string").slice(0,baseKeyCount()):[];const firstKeyDate=s.keyring.map(x=>x.firstDate).filter(Boolean).sort()[0]||s.dailyKey.date||"";s.keyJourneyStart=typeof s.keyJourneyStart==="string"&&s.keyJourneyStart?s.keyJourneyStart:firstKeyDate;s.keyring.forEach((x,i)=>x.number=i+1);const rebuildTemplateSeen=!Object.keys(s.templateSeen).length;
   for(const skill of CAMPAIGN.skills){const m=s.metrics[skill.id];if(!Number.isFinite(m.intervalDays))m.intervalDays=1;if(!Number.isFinite(m.lastTs))m.lastTs=0;}
   for(const r of s.history){const m=s.metrics[r.cat];if(m&&Number.isFinite(r.ts)&&r.ts>(m.lastTs||0))m.lastTs=r.ts;if(rebuildTemplateSeen&&r.templateId){const g=s.templateSeen[r.templateId]||(s.templateSeen[r.templateId]={count:0,lastTs:0,lastLevel:-99});g.count++;if((r.ts||0)>g.lastTs){g.lastTs=r.ts||0;g.lastLevel=r.level??g.lastLevel;}}}
-  if((s.contentRevision||1)<2){
-    const revisedCats=new Set(["despite","unless","whose"]),revisedFp=new Set(CAMPAIGN.questions.filter(q=>revisedCats.has(q.cat)).map(q=>q.fingerprint));
-    for(const fp of Object.keys(s.seen))if(revisedFp.has(fp))delete s.seen[fp];
-    for(const t of Object.keys(s.templateLast))if(t.startsWith("despite-")||t.startsWith("unless-")||t.startsWith("whose-"))delete s.templateLast[t];
-    s.contentRevision=2;
-  }
-  if((s.contentRevision||2)<3){
-    const revisedCats=new Set(["mixed_conditional","modal_deduction"]),revisedFp=new Set(CAMPAIGN.questions.filter(q=>revisedCats.has(q.cat)).map(q=>q.fingerprint));
-    for(const fp of Object.keys(s.seen))if(revisedFp.has(fp))delete s.seen[fp];
-    for(const t of Object.keys(s.templateLast))if(t.startsWith("mixed-")||t.startsWith("deduct-"))delete s.templateLast[t];
-    for(const t of Object.keys(s.templateSeen))if(t.startsWith("mixed-")||t.startsWith("deduct-"))delete s.templateSeen[t];
-    s.contentRevision=3;
-  }
+  s.contentRevision=1;
   return s;
 }
 function loadState(){
@@ -665,9 +612,7 @@ function coachSnapshot(){
   const tenseLeague=[...new Set(BANK.map(q=>q.tenseId).filter(Boolean))].map(id=>{const rows=state.history.filter(r=>r.tenseId===id),n=rows.length,correct=rows.filter(r=>r.correct).length,automatic=rows.filter(r=>r.type==="automatic").length;return {tenseId:id,label:BANK.find(q=>q.tenseId===id)?.tenseLabel||id,attempts:n,accuracyPct:n?+(correct/n*100).toFixed(1):null,automaticPct:n?+(automatic/n*100).toFixed(1):null,avgResponseSec:n?+(mean(rows.map(r=>r.ms))/1000).toFixed(2):null};}).sort((a,b)=>(b.accuracyPct??-1)-(a.accuracyPct??-1)||b.attempts-a.attempts);
   const errorTypes={};for(const r of state.history){if(!r.correct&&r.errorType)errorTypes[r.errorType]=(errorTypes[r.errorType]||0)+1;}
   return {schema:"ADAPTIVE_VERBS_CATALA_GLOBAL_V1",appVersion:APP_VERSION,campaign:CAMPAIGN.campaignId,bankStage:CAMPAIGN.bankStage,activeRetrievalMode:CAMPAIGN.activeRetrievalMode,level:state.level,sessions:state.sessions,totalAnswers:state.totalAttempts,uniqueFormsSeen:Object.keys(state.seen).length,bankSize:BANK.length,studySpanDays:+span.toFixed(1),focusTime:{todayMin:+(cf.todayMs/60000).toFixed(1),weekMin:+(cf.weekMs/60000).toFixed(1),totalMin:+(cf.totalMs/60000).toFixed(1),dailyTargetMin:cf.target.recommended},dueReviews:due,avgHitsPerLevel:life.avgHits==null?null:+life.avgHits.toFixed(2),completedTrainingLevels:life.levels,coveragePct:+(cs.coverage*100).toFixed(1),masteryPct:+(cs.mastery*100).toFixed(1),allTimeAccuracyPct:+(cs.allTimeAccuracy*100).toFixed(1),recentAccuracyPct:+(cs.accuracy*100).toFixed(1),automaticPct:+(cs.auto*100).toFixed(1),avgResponseSec:+(cs.avgMs/1000).toFixed(2),verbControl:+(cs.rating*100).toFixed(1),verbLeague:[...rankedSkills()].reverse().map((x,i)=>({rank:i+1,verb:x.name,masteryPct:+(x.mastery*100).toFixed(1),attempts:x.m.attempts||0})),tenseLeague,errorTypeCounts:errorTypes,recentErrors:state.history.filter(r=>!r.correct).slice(-80).map(r=>({formId:r.formId,verb:r.lemma,tense:r.tenseLabel,person:r.personLabel,myAnswer:r.userAnswer,correctAnswer:r.correctAnswer,errorType:r.errorType,responseTimeSec:+((r.ms||0)/1000).toFixed(2)}))};
-  const st=overallStats(),ai=aiValorationStats(),learning=learningScoreStats(),peer=typicalLearnerStats(),c2=campaign2Readiness(),estimate=campaignPracticeEstimate(),focus=coachSkillStats().slice(0,5),mistakes=commonMistakeGroups(8),trend=coachTrendSummary(),moves=coachSkillMovement(),targetPerf=targetPerformanceStats(),readingLoad=readingLoadStats(),focusTime=focusSummary();
-  const firstTs=state.history.find(r=>Number.isFinite(r.ts))?.ts||state.createdAt||Date.now(),studySpanDays=Math.max(0,(Date.now()-firstTs)/86400000),dueQuestionCount=Object.values(state.seen).filter(x=>x?.lastTs&&Date.now()>=(x.nextDueTs||x.lastTs+(x.intervalDays||1)*86400000)).length;
-  return {appVersion:APP_VERSION,campaign:CAMPAIGN.campaignId||CAMPAIGN.id||"AE-C1",level:state.level,sessions:state.sessions,totalAnswers:state.totalAttempts,uniqueSeen:Object.keys(state.seen).length,bankSize:BANK.length,studySpanDays:+studySpanDays.toFixed(1),focusTime:{todayMin:+(focusTime.todayMs/60000).toFixed(1),weekMin:+(focusTime.weekMs/60000).toFixed(1),totalMin:+(focusTime.totalMs/60000).toFixed(1),dailyTargetMin:focusTime.target.recommended,minimumMin:focusTime.target.minimum,stretchMin:focusTime.target.stretch},dueQuestionCount,coveragePct:+(st.coverage*100).toFixed(1),masteryPct:+(st.mastery*100).toFixed(1),allTimeAccuracyPct:+(st.allTimeAccuracy*100).toFixed(1),allTimeCorrect:st.allTimeCorrect,avgHitsPerLevel:+(lifetimeLevelScoreStats().avgHits??0).toFixed(2),completedTrainingLevels:lifetimeLevelScoreStats().levels,recentAccuracyPct:+(st.accuracy*100).toFixed(1),recentAutomaticPct:+(st.auto*100).toFixed(1),avgResponseSec:+(st.avgMs/1000).toFixed(2),aeRating:+(st.rating*100).toFixed(1),learningScore:learning.current==null?null:+learning.current.toFixed(1),learningTrendDelta:learning.delta==null?null:+learning.delta.toFixed(1),aiLevel:ai.level,aiConfidencePct:+(ai.confidence*100).toFixed(1),typicalLearner:{you:peer.actual==null?null:+peer.actual.toFixed(1),healthyMin:+peer.healthyMin.toFixed(1),typical:+peer.typical.toFixed(1),strongPace:+peer.strongPace.toFixed(1),paceDelta:peer.delta==null?null:+peer.delta.toFixed(1),label:peer.label},graduationReadinessPct:+(c2.score*100).toFixed(1),campaignLearningProgressPct:+(estimate.learningProgress*100).toFixed(1),campaign2PracticeEstimate:{practiceHours:+estimate.hours.toFixed(1),rangeHours:[+estimate.hoursLow.toFixed(1),+estimate.hoursHigh.toFixed(1)],daysAtCurrentPace:estimate.days,dailyPaceMin:+estimate.paceMinutes.toFixed(1),paceBasis:estimate.paceBasis,calendarFloorDays:estimate.calendarFloor,mainGate:estimate.mainGate,confidence:estimate.confidenceLabel,hourDriver:estimate.hourDriver,gateHours:estimate.gateHours,dailyPlan:estimate.dailyPlan},targetPerformance:targetPerf.n?{levels:targetPerf.n,avgTarget:+targetPerf.avgTarget.toFixed(2),avgActual:+targetPerf.avgActual.toFixed(2),avgDelta:+targetPerf.avgDelta.toFixed(2),hitRatePct:+(targetPerf.hitRate*100).toFixed(1),abovePct:+(targetPerf.aboveRate*100).toFixed(1),exactPct:+(targetPerf.onRate*100).toFixed(1),belowPct:+(targetPerf.belowRate*100).toFixed(1)}:null,readingLoad:{windowAnswers:readingLoad.windowAnswers,short:readingLoadBucketForCoach(readingLoad.short),medium:readingLoadBucketForCoach(readingLoad.medium),long:readingLoadBucketForCoach(readingLoad.long),longVsShort:{accuracyDeltaPts:readingLoad.longVsShort.accuracyDeltaPts==null?null:+readingLoad.longVsShort.accuracyDeltaPts.toFixed(1),timeDeltaSec:readingLoad.longVsShort.timeDeltaMs==null?null:+(readingLoad.longVsShort.timeDeltaMs/1000).toFixed(2),timeoutDeltaPts:readingLoad.longVsShort.timeoutDeltaPts==null?null:+readingLoad.longVsShort.timeoutDeltaPts.toFixed(1)},evidence:readingLoad.evidence.label,lengthSensitiveSkills:readingLoad.sensitiveSkills.map(x=>({skill:x.skill,shortN:x.shortN,longN:x.longN,longVsShortAccuracyPts:+x.accuracyDeltaPts.toFixed(1),longVsShortTimeSec:+(x.timeDeltaMs/1000).toFixed(2)}))},recentTrend:trend,focus:focus.map(x=>({skill:x.name,masteryPct:+(x.mastery*100).toFixed(1),recentErrorPct:+(x.wrongRate*100).toFixed(1),attempts:x.m.attempts||0})),skillMovement:moves.map(x=>({skill:x.skill,deltaAccuracyPts:+x.delta.toFixed(1),recentAccuracyPct:+x.recent.toFixed(1),recentN:x.n})),commonMistakes:mistakes.map(g=>({skill:skillLabel(g.cat),recentMisses:g.count,question:g.record.question||g.record.originalQuestion||"",yourAnswer:g.record.userAnswer||"",correct:g.record.correctAnswer||"",rule:learningTerminology(g.record.rule||"")})),allSkills:[...rankedSkills()].reverse().map(x=>({skill:x.name,masteryPct:+(x.mastery*100).toFixed(1),attempts:x.m.attempts||0}))};
+
 }
 const AI_ANALYSIS_CONTRACT={
   language:"Answer mainly in Spanish; keep Catalan verb forms exactly as written.",
@@ -842,29 +787,11 @@ function renderCoachScreen(){
   $("coachMistakes").innerHTML=mistakes.map(g=>{const r=g.record,l=(window.AE_LESSONS||{})[g.cat]||{},item=itemCoach(r);return `<div class="mistake-card"><b>${escapeHtml(skillLabel(g.cat))} · ${g.count} recent miss${g.count===1?"":"es"}</b><p>${escapeHtml(r.question||r.originalQuestion||"")}</p><div class="mistake-choice"><div><b>You</b><br>${escapeHtml(r.userAnswer)}</div><div class="correct"><b>Correct</b><br>${escapeHtml(r.correctAnswer)}</div></div><p><b>Rule:</b> ${escapeHtml(learningTerminology(r.rule||l.es||"Review the structure and contrast it with the correct form."))}${item.quick?`<br><b>Coach:</b> ${escapeHtml(item.quick)}`:""}</p></div>`;}).join("")||'<p class="meta">No recurring mistakes yet.</p>';
   $("coachSkills").innerHTML=skillRowsHtml(worst);
 }
-function coachVariantKey(r){
-  const c=normErrorAnswer(r?.correctAnswer||"");
-  if(r?.cat==="mixed_conditional")return /would have/.test(c)?"present_to_past":"past_to_present";
-  if(r?.cat==="unless"||r?.cat==="despite"||r?.cat==="whose")return c||"default";
-  if(r?.cat==="modal_deduction")return /^must have/.test(c)?"must":/^can't have|^cannot have/.test(c)?"cant":"default";
-  return "default";
-}
+function coachVariantKey(r){return r?.errorType||r?.selectedMeta?.errorType||"default";}
 function itemCoach(r){
-  const lesson=(window.AE_LESSONS||{})[r?.cat]||{},coach=(window.AE_ERROR_COACH||{})[r?.cat]||{},c=normErrorAnswer(r?.correctAnswer||"");
-  const out={formula:learningTerminology(r?.rule||lesson.formula||r?.correctAnswer||""),quick:learningTerminology(lesson.cue||coach.must||"Identifica primero el patrón."),whyEs:coach.must||lesson.es||r?.rule||"",whyEn:lesson.en||"Notice the pattern in the correct answer.",secret:coach.secret||lesson.cue||"",trap:coach.trap||""};
-  if(r?.cat==="mixed_conditional"&&/would have/.test(c))return {...out,formula:"If + PAST SIMPLE → WOULD HAVE + participle (past result)",quick:"Condición de ahora + resultado de ayer → WOULD HAVE.",whyEs:"La condición describe una realidad presente irreal, pero la consecuencia pertenece al pasado. Por eso el resultado usa would have + participio.",secret:"MIXED: mira los DOS tiempos antes de elegir.",trap:"If I were more organised, I WOULD HAVE finished yesterday."};
-  if(r?.cat==="mixed_conditional")return {...out,formula:"If + HAD + participle → WOULD + infinitivo sin to (now)",quick:"Causa pasada + resultado de ahora → WOULD + infinitivo sin to.",whyEs:"La causa irreal está en el pasado y el resultado se ve ahora. Por eso el resultado no lleva would have.",secret:"MIXED: mira los DOS tiempos antes de elegir.",trap:"If I had studied medicine, I WOULD BE a doctor now."};
-  if(r?.cat==="unless"&&c==="unless")return {...out,formula:"UNLESS = IF NOT / A MENOS QUE",quick:"A MENOS QUE → UNLESS.",whyEs:"La condición funciona como una excepción negativa. Léela como «a menos que», sin añadir otra negación.",secret:"UNLESS = A MENOS QUE.",trap:"You can't enter UNLESS you show ID."};
-  if(r?.cat==="unless"&&c==="if")return {...out,formula:"IF = positive condition",quick:"SI ocurre X → IF.",whyEs:"La condición es positiva: el resultado depende de que ocurra la condición, no de una excepción negativa.",secret:"IF = SI; UNLESS = A MENOS QUE.",trap:"You'll improve IF you practise."};
-  if(r?.cat==="despite"&&c==="despite")return {...out,formula:"DESPITE + noun / -ing",quick:"Después viene una cosa/-ing → DESPITE.",whyEs:"Despite introduce un nombre, pronombre o forma en -ing; no una oración completa con sujeto y verbo.",secret:"DESPITE mira una COSA.",trap:"despite the rain ✓"};
-  if(r?.cat==="despite"&&c==="although")return {...out,formula:"ALTHOUGH + subject + verb",quick:"Después viene sujeto + verbo → ALTHOUGH.",whyEs:"Although introduce una oración completa. Si después ves sujeto + verbo, no uses despite.",secret:"ALTHOUGH mira una FRASE.",trap:"although it was raining ✓"};
-  if(r?.cat==="modal_deduction"&&/^must have/.test(c))return {...out,formula:"MUST HAVE + participle",quick:"La evidencia apunta a SÍ → MUST HAVE.",whyEs:"La evidencia apoya fuertemente que el hecho ocurrió en el pasado.",secret:"DEDUCCIÓN PASADA: SÍ casi seguro → MUST HAVE.",trap:"The log shows her account was active → she MUST HAVE used it."};
-  if(r?.cat==="modal_deduction"&&(/^can't have/.test(c)||/^cannot have/.test(c)))return {...out,formula:"CAN'T HAVE + participle",quick:"La evidencia lo hace imposible → CAN'T HAVE.",whyEs:"La evidencia hace incompatible o imposible que el hecho ocurriera.",secret:"DEDUCCIÓN PASADA: imposible → CAN'T HAVE.",trap:"The train was cancelled before boarding → she CAN'T HAVE taken it."};
-  if(r?.cat==="whose"&&c==="whose")return {...out,formula:"WHOSE + noun",quick:"Posesión / «cuyo» → WHOSE."};
-  if(r?.cat==="whose"&&c==="who")return {...out,formula:"WHO + verb",quick:"Persona que hace la acción → WHO."};
-  if(r?.cat==="whose"&&c==="which")return {...out,formula:"WHICH + verb",quick:"Cosa que hace/recibe la acción → WHICH."};
-  if(r?.cat==="whose"&&c==="whom")return {...out,formula:"PREPOSITION + WHOM",quick:"Preposición + persona → WHOM (formal)." };
-  return out;
+  const lesson=(window.AE_LESSONS||{})[r?.cat]||{},coach=(window.AE_ERROR_COACH||{})[r?.cat]||{};
+  const error=r?.errorType||r?.selectedMeta?.errorType||"OTHER";
+  return {formula:r?.rule||lesson.formula||r?.correctAnswer||"",quick:coach.must||lesson.cue||`Contrasta ${r?.personLabel||"persona"} · ${r?.tenseLabel||"paradigma"}.`,whyEs:coach.must||lesson.es||r?.rule||"",whyEn:"",secret:coach.secret||lesson.cue||"",trap:coach.trap||"",errorType:error};
 }
 function levelErrorGroups(records){
   const groups={},order=[];
@@ -873,30 +800,11 @@ function levelErrorGroups(records){
 }
 function solvedErrorSentence(r){const q=String(r.question||r.originalQuestion||"");return q.includes("___")?q.replace("___",r.correctAnswer||"___"):q;}
 function normErrorAnswer(x){return String(x||"").trim().toLowerCase().replace(/\s+/g," ");}
-function infinitiveBody(x){const m=normErrorAnswer(x).match(/^to\s+([a-z]+)$/);return m?m[1]:null;}
-function isExactBareOf(w,c){const base=infinitiveBody(c);return !!base&&normErrorAnswer(w)===base;}
-function isIngOf(w,c){const base=infinitiveBody(c),x=normErrorAnswer(w);if(!base)return false;const forms=new Set([base+"ing"]);if(base.endsWith("e"))forms.add(base.slice(0,-1)+"ing");if(/[^aeiou][aeiou][^aeiouwxy]$/.test(base))forms.add(base+base.slice(-1)+"ing");return forms.has(x);}
-const MISCONCEPTION_RULES={
-  unless:[
-    {id:"CONDITION_TO_CAUSE",label:"condition → cause",test:(w,c)=>/\bbecause\b/.test(w)&&/\b(if|unless)\b/.test(c)},
-    {id:"UNLESS_PLUS_NOT",label:"unless + explicit negation",test:(w,c)=>/\bunless\b/.test(w)&&/\b(not|don't|doesn't|didn't|won't|wouldn't|can't|cannot)\b/.test(w)},
-    {id:"IF_UNLESS_POLARITY",label:"if / unless polarity",test:(w,c)=>/\b(if|unless)\b/.test(w)&&/\b(if|unless)\b/.test(c)&&w!==c}
-  ],
-  make_bare:[{id:"MAKE_TO_INFINITIVE",label:"make + object + to-infinitive",test:(w,c)=>/^to\s+/.test(w)&&!/^to\s+/.test(c)},{id:"MAKE_GERUND",label:"make + object + -ing",test:(w,c)=>/ing\b/.test(w)&&! /ing\b/.test(c)}],
-  used_to:[{id:"USED_TO_INFLECTED",label:"used to + inflected verb",test:(w,c)=>/\b(ing|ed)\b/.test(w)||/ing$|ed$/.test(w)}],
-  get_used_to:[{id:"USED_TO_BASE_INSTEAD_OF_ING",label:"be/get used to + infinitivo sin to",test:(w,c)=>! /ing\b/.test(w)&&/ing\b/.test(c)}],
-  look_forward:[{id:"LOOK_FORWARD_TO_BASE",label:"look forward to + infinitivo sin to",test:(w,c)=>! /ing\b/.test(w)&&/ing\b/.test(c)}],
-  allow_to:[{id:"ALLOW_BARE_INFINITIVE",label:"allow + object + infinitivo sin to",test:(w,c)=>isExactBareOf(w,c)},{id:"ALLOW_GERUND_INSTEAD_OF_TO",label:"allow + object + -ing instead of to-infinitive",test:(w,c)=>isIngOf(w,c)}],
-  despite:[{id:"DESPITE_CLAUSE",label:"despite + finite clause",test:(w,c)=>/\b(although|though|even though)\b/.test(c)&&/\bdespite\b/.test(w)}],
-  so_such:[{id:"SO_SUCH_SWAP",label:"so / such swap",test:(w,c)=>/\b(so|such)\b/.test(w)&&/\b(so|such)\b/.test(c)&&w!==c}],
-  too_enough:[{id:"TOO_ENOUGH_SWAP",label:"too / enough swap",test:(w,c)=>/\b(too|enough)\b/.test(w)&&/\b(too|enough)\b/.test(c)&&w!==c}],
-  second_conditional:[{id:"SECOND_CONDITIONAL_WILL",label:"will in the if-clause",test:(w,c)=>/\bwill\b/.test(w)&&! /\bwill\b/.test(c)}],
-  third_conditional:[{id:"THIRD_CONDITIONAL_FORM",label:"third conditional form confusion",test:(w,c)=>w!==c}],
-  modal_deduction:[{id:"MUST_CANT_POLARITY",label:"must have / can't have polarity",test:(w,c)=>/^(must have|can't have|cannot have)/.test(w)&&/^(must have|can't have|cannot have)/.test(c)&&w!==c},{id:"PAST_MODAL_FORM",label:"past modal deduction form",test:(w,c)=>w!==c}],
-  backshift:[{id:"BACKSHIFT_TENSE",label:"reported-speech backshift",test:(w,c)=>w!==c}],
-  mixed_conditional:[{id:"MIXED_TIME_REFERENCE",label:"mixed conditional time reference",test:(w,c)=>w!==c}]
-};
-function misconceptionFor(r){const w=normErrorAnswer(r.userAnswer),c=normErrorAnswer(r.correctAnswer);if(!w||w==="no answer")return {id:"NO_ANSWER",label:"timeout / no answer",source:"observed"};const rules=MISCONCEPTION_RULES[r.cat]||[];const hit=rules.find(x=>{try{return x.test(w,c,r);}catch(e){return false;}});return hit?{id:hit.id,label:hit.label,source:"rule"}:{id:`${String(r.cat||"skill").toUpperCase()}_OTHER`,label:"other distractor in this skill",source:"fallback"};}
+const MISCONCEPTION_LABELS={PERSON_CONFUSION:"person confusion",TENSE_CONFUSION:"tense confusion",MOOD_CONFUSION:"mood confusion",STEM_ERROR:"stem error",ENDING_ERROR:"ending error",ACCENT_ERROR:"accent error",ORTHOGRAPHIC_ERROR:"orthographic error",AUXILIARY_ERROR:"auxiliary error",PARTICIPLE_ERROR:"participle error",TIMEOUT:"timeout / no answer",OTHER:"other verb-form error"};
+function misconceptionFor(r){
+  const id=r?.errorType||(r?.type==="timeout"?"TIMEOUT":"OTHER");
+  return {id,label:MISCONCEPTION_LABELS[id]||String(id).toLowerCase().replaceAll("_"," "),source:"recorded"};
+}
 function misconceptionFingerprint(r){const m=misconceptionFor(r),all=state.history.filter(x=>!x.correct&&x.cat===r.cat).map(x=>({r:x,m:misconceptionFor(x)})),same=all.filter(x=>x.m.id===m.id),recent=all.slice(-30),recentSame=recent.filter(x=>x.m.id===m.id);return {...m,count:same.length,shareOfSkillErrorsPct:all.length?+(same.length/all.length*100).toFixed(1):0,recentCount:recentSame.length,firstSeenLevel:same[0]?.r.level??r.level,lastSeenLevel:same[same.length-1]?.r.level??r.level,evidence:same.length>=8?"HIGH":same.length>=4?"MODERATE":"BUILDING"};}
 function errorFingerprint(r){
   const skillRows=state.history.filter(x=>x.cat===r.cat),wrong=skillRows.filter(x=>!x.correct),same=wrong.filter(x=>normErrorAnswer(x.userAnswer)===normErrorAnswer(r.userAnswer)),recent=wrong.slice(-30),recentSame=recent.filter(x=>normErrorAnswer(x.userAnswer)===normErrorAnswer(r.userAnswer));
@@ -1002,8 +910,8 @@ function ensureDailyKey(){
   if(changed)save();return {...state.dailyKey,number:active.number||state.keyring.indexOf(active)+1,unlocked:state.keyring.length,start:state.keyJourneyStart};
 }
 function keySlideHtml(x){
-  const key=(window.AE_KEYS||{})[x.cat],skill=CAMPAIGN.skills.find(s=>s.id===x.cat),m=state.metrics[x.cat],mastery=m?metricMastery(m):0,n=x.number||1,echo=memoryEchoFor(x.cat,x.cat==="so_such"?"such":x.cat==="too_enough"?"enough":"");
-  return `<article class="key-slide" data-key-number="${n}"><div class="key-slide-meta"><span>BASE KEY ${n} / ${baseKeyCount()}</span><small>${pct(mastery)}% MASTERY</small></div><button class="daily-key-card" type="button" aria-expanded="false"><div class="daily-key-face daily-key-front"><small>FORMA VERBAL · CATALÀ</small><strong>${escapeHtml(key.front)}</strong><span>TOCA PARA REVELAR</span></div><div class="daily-key-face daily-key-back"><small>KEY ${n} UNLOCKED</small><strong>${escapeHtml(key.back)}</strong><b>${escapeHtml(key.formula)}</b><span>${escapeHtml(key.cue)}</span>${keyMemoryEchoHtml(x.cat)}</div></button>${spotifyOpenHtml(echo,"key-spotify-open")}</article>`;
+  const key=(window.AE_KEYS||{})[x.cat],m=state.metrics[x.cat],mastery=m?metricMastery(m):0,n=x.number||1;
+  return `<article class="key-slide" data-key-number="${n}"><div class="key-slide-meta"><span>BASE KEY ${n} / ${baseKeyCount()}</span><small>${pct(mastery)}% MASTERY</small></div><button class="daily-key-card" type="button" aria-expanded="false"><div class="daily-key-face daily-key-front"><small>FORMA VERBAL · CATALÀ</small><strong>${escapeHtml(key.front)}</strong><span>TOCA PARA REVELAR</span></div><div class="daily-key-face daily-key-back"><small>KEY ${n} UNLOCKED</small><strong>${escapeHtml(key.back)}</strong><b>${escapeHtml(key.formula)}</b><span>${escapeHtml(key.cue)}</span></div></button></article>`;
 }
 function discoverySlideHtml(x){const echo=memoryEchoFor(x.echoCat||"","");return `<article class="key-slide discovery-slide" data-key-number="${x.number}"><div class="key-slide-meta"><span>DISCOVERY ${String(x.number).padStart(3,"0")}</span><small>DIARY KEY</small></div><button class="daily-key-card discovery-card" type="button" aria-expanded="false"><div class="daily-key-face daily-key-front"><small>${escapeHtml(x.title)}</small><strong>${escapeHtml(x.front)}</strong><span>TOCA PARA REVELAR</span></div><div class="daily-key-face daily-key-back"><small>KEY ${String(x.number).padStart(3,"0")} · DISCOVERED</small><strong>${escapeHtml(x.back)}</strong><b>${escapeHtml(x.formula)}</b><span>${escapeHtml(x.cue)}</span>${echo?`<em class="key-memory-echo"><small>MUSIC ECHO</small><span>${escapeHtml(echo.artist)} · ${escapeHtml(echo.title)}</span><b>${escapeHtml(echo.cue)}</b></em>`:""}</div></button>${spotifyOpenHtml(echo,"key-spotify-open")}</article>`;}
 function renderDailyKey(){
@@ -1046,7 +954,7 @@ function renderGrowthTree(){
   host.innerHTML=`<div class="growth-tree-canvas" data-tree-stage="${stage}"><svg viewBox="0 0 420 300" role="img" aria-label="Practice tree, growth stage ${stage} of 200"><defs><linearGradient id="treeTrunk" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#5d3827"/><stop offset=".55" stop-color="#76503a"/><stop offset="1" stop-color="#957258"/></linearGradient></defs><ellipse class="tree-ground" cx="210" cy="282" rx="78" ry="7"/> <g class="tree-branches" fill="none" stroke="url(#treeTrunk)" stroke-linecap="round" stroke-linejoin="round">${branch}</g><g class="tree-leaves">${leaf}</g></svg></div><div class="growth-tree-count"><b>${level.toLocaleString()}</b><span>LEVEL</span></div>`;
 }
 
-const RELEASE_NOTES=["v3.19 changes the lifetime dashboard controller to AVG HITS /15: mean correct answers per completed training level since Campaign 1 began","The same lifetime /15 mean appears in Statistics and is exported as avgHitsPerLevel; higher is better and the familiar 15-question scale is preserved","The previous all-time accuracy percentage remains available internally/JSON; no learning-engine, timing, sound or scheduler behavior changed","v3.18 adds ALL-TIME ACCURACY to the main dashboard and Statistics: total correct answers divided by total attempts since Campaign 1 began","All-time accuracy is computed from permanent per-skill counters, so it remains exact beyond the rolling history window; Recent accuracy stays separate and unchanged","The coach JSON now exports allTimeAccuracyPct and allTimeCorrect for longitudinal analysis; no mastery, rating, scheduler, progress or gameplay logic changed","v3.17 SCORE SOUND LADDER adds 15 coherent end-of-level sound grades: low scores use darker descending motifs, middle scores become neutral/ascending, high scores become increasingly triumphant, and 15/15 gets the full victory fanfare","The sound grade follows the actual score out of 15, independently of the adaptive target; question sounds, the fixed 10-second clock, progress, scheduler and learning algorithms are unchanged","v3.16 CONTENT VALIDITY AUDIT rewrites ambiguous or semantically weak question families while preserving every question ID, fingerprint, template ID, category, stored progress record and adaptive scheduling state","IF/UNLESS and DESPITE/ALTHOUGH now measure clean two-way contrasts; mixed-conditionals, modal deduction and relative-pronoun feedback are item-aware; should have, needn't have, backshift and several templated grammar families now use clearer natural contexts; the 10-second clock and adaptive algorithms are unchanged","v3.15 FINAL STUDY FREEZE adds a universal AI handoff: after each level the app prepares GLOBAL + SESSION JSON and makes a best-effort automatic clipboard copy, with a one-tap fallback when the browser blocks background clipboard writes","The handoff contains the full longitudinal coach snapshot, latest-level skill summary, every session error, grouped errors, misconception/error fingerprints and an explicit Spanish-L1 contrastive analysis contract usable with ChatGPT, Gemini or another AI","My Coach now copies a clean GLOBAL JSON directly; Error Lab adds COPY SESSION ERRORS JSON while retaining per-error JSON","No scheduler, mastery, 3,000-question bank, 15-question level, fixed 10-second clock, transition timing or calibrated gameplay layout changes are included; audio is deliberately left unchanged after the final interface audit","v3.14 standardizes the learner-facing grammar term as INFINITIVO SIN TO instead of base verb / bare infinitive throughout skill labels, lessons, Keys, diagnostics and new question metadata","KEY DIARY discovery #027 adds RATHER BE: MISMO → INFINITIVO SIN TO · OTRO → PASADO, with the contrast I’d rather GO / I’d rather YOU WENT","Internal category IDs and learning logic remain unchanged; this is a terminology/readability change plus one discovery card","v3.13 adds a fleeting Skill League label to every answer transition, using the exact same grammar-skill name on correct and wrong answers without changing any transition timing","Estimated Practice Left now appears on the level-results back cover as well as the dashboard","Statistics, League Study, My Coach and Error Lab now have an immediate DASHBOARD button at the top, and League Study is included explicitly in the screen router","v3.12 increases typography throughout dashboards, statistics, coach, league, review and campaign-planning views for easier reading; the calibrated game panel is deliberately untouched","Time estimates, daily-plan scenarios, Focus Time details, chart metadata and secondary labels are now substantially larger on mobile and desktop","v3.11 adds a stable DAILY PLAN: recommended minutes/day → estimated practice days, plus minimum, stretch and today-at-this-pace scenarios","The recommended daily minutes come from the existing adaptive Focus target, so weak skills/review load can raise the prescription and fatigue can lower it","Estimated practice days are now anchored to the recommended plan instead of changing all day as today’s accumulated minutes rise","v3.10 separates GRADUATION READINESS from LEARNING PROGRESS so the percentage is no longer mistaken for time completed","Estimated Practice Left is now derived from observed in-app progress per practice hour for learning progress, mastery and coverage; the slowest learning gate sets the hour estimate","Calendar/retention requirements remain separate from practice hours, and the estimate now shows its hour driver and a confidence range","The Campaign 2 forecast is now named ESTIMATED PRACTICE LEFT across the dashboard, My Coach and the coach export","Restored the Local Coach narrative after the v3.9 hours update so My Coach renders both the practice estimate and the longitudinal report","Estimated Practice Left now shows focused practice hours plus equivalent days at today's pace, directly on the main dashboard and in My Coach","The estimate separates practice-time remaining from mandatory calendar/retention time, with a modeled hour range and confidence label","v3.8.1 cache isolation remains active so Adaptive English cannot delete caches belonging to other apps on the same origin","Full audit/recalibration: Campaign 2 readiness now follows the real graduation gate instead of the older permissive handoff thresholds","Graduation now requires near-complete coverage, 85% global mastery, every skill at 70%+, 14 real days, enough spaced-review evidence, retention, stability and a modest automaticity/fluency signal before the final challenge","The practice estimate was recalibrated to the stricter graduation gates and uses the actual Learning Curve","KEY DIARY keeps the 25 base Keys and adds open-ended discovery cards; #026 is GOTYE, and cards now use Anki-style tap once to flip, tap again to advance","Core 3,000-question bank, scheduler, 15-question levels, fixed 10-second clock and STORAGE_KEY are unchanged"];
+const RELEASE_NOTES=["v0.1.1 · 180 pilot forms audited","Catalan Error Coach replaces inherited English rules","Key gate scales to the active 10-verb pilot","6-second timer, 15-question levels, Verb League and Tense League retained"];
 function renderReleaseInfo(){const host=$("releaseInfo"),online=location.protocol.startsWith("http"),build=`${online?"ONLINE":"LOCAL"} BUILD · v${APP_VERSION} · BANK ${CAMPAIGN?.version||"—"}`;if(host)host.innerHTML=`<details class="release-info"><summary><b>Adaptive Verbs · Català v${APP_VERSION}</b><span>WHAT’S NEW</span></summary><ul>${["v0.1.1 · Pilot audited: 180 canonical forms · 10 verbs × 3 paradigms × 6 persons","15 questions per level · fixed 6-second clock · AVG HITS /15 and TARGET retained","Verb League + Tense League · form/person/tense/error metadata in AI handoff","Recognition is active; Build and Production are reserved in the Campaign 1 data architecture"].map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></details>`;if($("buildVersion"))$("buildVersion").textContent=build;if($("endBuildVersion"))$("endBuildVersion").textContent=build;const meta=document.querySelector('meta[name="ae-version"]');if(meta)meta.setAttribute("content",APP_VERSION);document.title=`Adaptive Verbs · Català · Campaign 1 · v${APP_VERSION}`;}
 function renderStart(){
   ensureDailyKey();

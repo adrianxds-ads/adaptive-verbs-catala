@@ -5,7 +5,7 @@ PWA gamificada i adaptativa derivada tècnicament d'Adaptive English, dedicada e
 ## Campaign 1
 Una sola campanya longitudinal. El pilot NO és el final: és el primer banc activat.
 
-### Pilot v0.1.0
+### Pilot v0.1.1
 - 10 verbs: parlar, perdre, dormir, servir, anar, fer, tenir, poder, voler, veure.
 - 3 paradigmes: present d'indicatiu, present de subjuntiu, imperfet de subjuntiu.
 - 6 persones = 180 formes canòniques.
@@ -22,3 +22,6 @@ Les formes no es generen lliurement amb IA. El banc pilot s'ha construït amb fo
 
 ## Regla de campanya
 Campaign 1 només podrà marcar-se COMPLETE quan bankStage sigui COMPLETE. Cobrir el pilot no finalitza la campanya.
+
+## Quality gate
+- `python tools/audit_pilot.py` validates all 180 canonical pilot forms, IDs, four-option uniqueness and audit metadata before release.

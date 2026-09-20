@@ -566,7 +566,7 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 <section id="leagueScreen" class="screen dashboard-screen hidden">
   <div class="panel">
     <div class="top-dashboard-nav"><button id="leagueTopDashboardBtn" class="ghost">DASHBOARD</button></div>
-    <div class="resulttitle league-study-hero"><div class="kicker">VERB LEAGUE · v0.1</div><h1>Verb League Study</h1><p>La clasificación completa y el movimiento de las últimas 8 jornadas, con espacio para leer cada cambio con claridad.</p></div>
+    <div class="resulttitle league-study-hero"><div class="kicker">VERB LEAGUE · v0.1.1</div><h1>Verb League Study</h1><p>La clasificación completa y el movimiento de las últimas 8 jornadas, con espacio para leer cada cambio con claridad.</p></div>
     <div id="leagueStudyBody"></div>
     <p class="league-study-explain"><b>Cómo leerla:</b> ▲/▼ indica movimiento de puestos en la liga. No significa por sí solo que el mastery haya mejorado o empeorado: una skill también puede cambiar de posición porque otras la adelantan.</p>
     <div class="screen-nav"><button id="leagueBackBtn" class="primary">BACK TO STATISTICS</button></div>
@@ -663,16 +663,16 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 
 <section id="missionOverlay" class="mission-overlay hidden" aria-hidden="true"><div class="mission-card"><div id="missionBody"></div><div id="missionCount" class="mission-count"></div></div></section>
 <div id="particles" class="particles" aria-hidden="true"></div>
-<script src="./adrian-visual-system.js?v=3.18"></script>
-<script src="./lessons.js?v=3.18"></script>
-<script src="./keys.js?v=3.18"></script>
-<script src="./error-coach.js?v=3.18"></script>
-<script src="./app.js?v=3.18"></script>
+<script src="./adrian-visual-system.js?v=0.1.1"></script>
+<script src="./lessons.js?v=0.1.1"></script>
+<script src="./keys.js?v=0.1.1"></script>
+<script src="./error-coach.js?v=0.1.1"></script>
+<script src="./app.js?v=0.1.1"></script>
 <script>
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   let aeReloading=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(aeReloading)return;aeReloading=true;location.reload();});
-  navigator.serviceWorker.register('./service-worker.js?v=3.18',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+  navigator.serviceWorker.register('./service-worker.js?v=0.1.1',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
 }
 </script>
 </body>
