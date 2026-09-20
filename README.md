@@ -5,14 +5,14 @@ PWA gamificada i adaptativa derivada tècnicament d'Adaptive English, dedicada e
 ## Campaign 1
 Una sola campanya longitudinal. El pilot NO és el final: és el primer banc activat.
 
-### Pilot v0.1.2
-- Millora de jerarquia visual de la pregunta: temps/mode més gran, opacitat completa i banda pròpia; persona subordinada visualment.
+### Pilot v0.2.0
+- Jerarquia visual reforçada: verb → temps/mode → persona.
+- Temporització en dues fases: 2,2 s de lectura de la consigna amb respostes ocultes + 5,0 s de resposta mesurada.
 - 10 verbs: parlar, perdre, dormir, servir, anar, fer, tenir, poder, voler, veure.
 - 3 paradigmes: present d'indicatiu, present de subjuntiu, imperfet de subjuntiu.
 - 6 persones = 180 formes canòniques.
 - 15 preguntes per nivell.
-- Cronòmetre fix de 6 segons.
-- Recognition actiu; esquema preparat per Build i Production.
+- Recognition actiu; Build i Production són la següent expansió pedagògica, no el final del pilot.
 - AVG HITS /15, TARGET, Focus Time, Learning Curve, Coverage, Mastery i Automatic.
 - Verb League + Tense League.
 - Metadades d'error per forma i SRS longitudinal.

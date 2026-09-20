@@ -488,6 +488,10 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 #questionText .verb-prompt{font-size:clamp(36px,10.4vw,58px);font-weight:950;letter-spacing:.045em;line-height:1}
 #questionText .tense-prompt{box-sizing:border-box;max-width:min(96%,560px);padding:7px 14px;border-radius:11px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.055);font-size:clamp(22px,6.6vw,34px);font-weight:950;letter-spacing:.018em;opacity:1;line-height:1.08;color:#f6f8f7;text-wrap:balance}
 #questionText .person-prompt{font-size:clamp(19px,5.5vw,27px);font-weight:950;letter-spacing:.075em;color:var(--reward-gold-text);line-height:1.05}
+#answers .answer{transition:opacity .14s ease,transform .14s ease,filter .14s ease}
+#answers.cue-phase .answer{opacity:0;transform:translateY(7px) scale(.985);pointer-events:none}
+#timer.cue-reading strong{font-size:13px;letter-spacing:.09em}
+#timer.cue-reading::after{opacity:.22}
 @media(max-width:520px){#questionText{gap:8px}.answer{font-size:clamp(20px,6vw,29px)}#questionText .tense-prompt{padding:7px 11px;font-size:clamp(22px,6.7vw,29px)}}
 </style>
 </head>
