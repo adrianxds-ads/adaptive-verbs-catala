@@ -1,10 +1,10 @@
 
-const INITIAL_PRIORS = {"would_rather":[0.18,0.12,0.17],"inversion":[0.37,0.25,0.3],"third_conditional":[0.35,0.19,0.28],"allow_to":[0.45,0.3,0.34],"neednt_have":[0.25,0.16,0.2],"should_have":[0.28,0.18,0.23],"modal_deduction":[0.3,0.18,0.25],"wish_past":[0.88,0.79,0.78],"wish_present":[0.55,0.4,0.45],"mixed_conditional":[0.58,0.43,0.47],"causative":[0.14,0.08,0.15],"passive":[0.55,0.4,0.45],"backshift":[0.72,0.47,0.55],"past_perfect":[0.72,0.6,0.6],"unless":[0.24,0.12,0.24],"despite":[0.42,0.31,0.36],"so_such":[0.6,0.46,0.48],"too_enough":[0.55,0.4,0.44],"look_forward":[0.82,0.74,0.72],"get_used_to":[0.75,0.62,0.64],"used_to":[0.84,0.73,0.72],"make_bare":[0.84,0.74,0.73],"whose":[0.86,0.79,0.78],"second_conditional":[0.65,0.5,0.56],"had_better":[0.65,0.52,0.56]};
-const APP_VERSION = "3.19";
-const STORAGE_KEY = "adaptive_english_campaign1_v1";
-const GLOBAL_LEVEL_KEY = "adaptive_english_global_level_v1";
+const INITIAL_PRIORS = {};
+const APP_VERSION = "0.1.0";
+const STORAGE_KEY = "adaptive_verbs_catala_campaign1_v1";
+const GLOBAL_LEVEL_KEY = "adaptive_verbs_catala_global_level_v1";
 const SESSION_SIZE = 15;
-const TIME_LIMIT = 10;
+const TIME_LIMIT = 6;
 const HISTORY_LIMIT = 6000;
 const SESSION_HISTORY_LIMIT = 1000;
 const VISUAL_SYSTEM=window.ADRIAN_VISUAL_SYSTEM||null;
@@ -25,7 +25,7 @@ const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
 const mean=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
 const pct=x=>Math.round(x*100);
 const fmtSec=ms=>(ms/1000).toFixed(1)+"s";
-const stageNames=["Foundations","Control","Complex Grammar","Fluency","Automaticity","Mastery"];
+const stageNames=["Descoberta","Reconeixement","Control","Automatització","Producció","Domini"];
 const RATING_BANDS=[
   {min:0,key:"forest",name:"FOUNDATION"},
   {min:.35,key:"teal",name:"BUILDING"},
@@ -117,10 +117,7 @@ function learningTerminology(text){
     .replace(/\bverbo base\b/gi,"infinitivo sin to")
     .replace(/\bverbo desnudo\b/gi,"infinitivo sin to");
 }
-const DISCOVERY_CARDS=[
-  {number:26,id:"gotye_used_to",releasedOn:"2026-09-19",title:"GOTYE",front:"used to or be/get used to?",back:"GOTYE → CORTO · BE/GET → -ING",formula:"used to + INFINITIVO SIN TO | be/get used to + -ING",cue:"I used to know him. · I'm used to working here.",echoCat:"used_to"},
-  {number:27,id:"rather_same_other",releasedOn:"2026-09-19",title:"RATHER BE",front:"would rather → ¿MISMO sujeto u OTRO?",back:"MISMO → INFINITIVO SIN TO · OTRO → PASADO",formula:"I'd rather GO. | I'd rather YOU WENT.",cue:"RATHER BE = mismo/corto · RATHER YOU = otro/pasado.",echoCat:"would_rather"}
-];
+const DISCOVERY_CARDS=[];
 function unlockedDiscoveryCards(){const today=localDateKey();return DISCOVERY_CARDS.filter(x=>!x.releasedOn||x.releasedOn<=today);}
 function memoryEchoFor(cat,correctAnswer=""){
   if(cat==="so_such")return /\bsuch\b/i.test(correctAnswer)?{title:"Such Great Heights",artist:"The Postal Service",cue:"SUCH + NOUN"}:{title:"So What",artist:"P!nk",cue:"SO + ADJECTIVE"};
@@ -324,20 +321,19 @@ function campaign2Brief(){
   return `Adaptive English recommends preparing Campaign 2. I will attach/export my Campaign 1 progress JSON. Use that export as the primary diagnostic. Build Campaign 2 as a separate 3,000-question bank that preserves Campaign 1 and the existing app architecture. Prioritize genuinely new C1 material plus targeted transfer for my remaining weak patterns; avoid duplicate questions and retain 15 questions per level, 10-second timing, adaptive selection, dynamic names, micro-lessons, AI Valoration and the long-term Learning Curve. Current handoff: readiness ${pct(r.score)}%, coverage ${pct(st.coverage)}%, mastery ${pct(st.mastery)}%, weakest Key ${pct(st.minSkill)}%, review retention ${pct(r.graduation.retentionAccuracy)}% across ${r.graduation.reviewCount} recent review answers, automatic ${pct(st.auto)}%, 8-level stability ${pct(r.graduation.stableAccuracy)}%, real evidence span ${r.graduation.spanDays.toFixed(1)} days, Key Journey ${st.keysUnlocked}/25. Campaign 2 must remain locked until every graduation gate and the final challenge are passed. First analyze my export and propose the Campaign 2 skill map before generating the new 3,000 questions.`;
 }
 function stageInfo(coverage){
-  const seen=Object.keys(state.seen).length;
-  const index=Math.min(5,Math.floor(Math.min(2999,seen)/500));
-  return {index,name:stageNames[index],from:index*500,to:(index+1)*500,seen};
+  const seen=Object.keys(state.seen).length,total=Math.max(1,BANK.length),step=Math.max(1,Math.ceil(total/6));
+  const index=Math.min(5,Math.floor(Math.min(total-1,seen)/step));
+  return {index,name:stageNames[index],from:index*step,to:Math.min(total,(index+1)*step),seen};
 }
 
-function outcomeType(ok,sec,target,timeout){
+function outcomeType(ok,sec,target,timeout,mode="RECOGNITION"){
   if(timeout)return "timeout";
-  const auto=Math.min(3.0,target*.85);
-  const secure=Math.min(6.0,target*1.35);
-  const fastWrong=Math.min(3.2,target*.9);
+  const bands=mode==="BUILD"?[3.0,4.8]:mode==="PRODUCTION"?[3.5,5.2]:[2.25,4.5];
+  const [auto,secure]=bands;
   if(ok&&sec<=auto)return "automatic";
   if(ok&&sec<=secure)return "secure";
   if(ok)return "slow-correct";
-  if(sec<=fastWrong)return "fast-wrong";
+  if(sec<=auto)return "fast-wrong";
   return "slow-wrong";
 }
 function updateMetric(q,ok,sec,type){
@@ -389,6 +385,11 @@ function visibleCard(q){
   return {question:swap(q.q),options:(q.display||[]).map(swap),focus:(q.focus||[]).map(swap),names:map,occurrence};
 }
 
+function renderVerbPrompt(q,fallback=""){
+  const el=$("questionText");if(!el)return;
+  if(!q?.lemma){el.textContent=fallback;return;}
+  el.innerHTML='<span class="verb-prompt">'+escapeHtml(String(q.lemma).toUpperCase())+'</span><span class="tense-prompt">'+escapeHtml(q.tenseLabel||"")+'</span><span class="person-prompt">'+escapeHtml(q.personLabel||"")+'</span>';
+}
 function focusMarkup(text,answer,fragments=[]){
   text=String(text);const ranges=[];
   for(const frag of [...new Set(fragments.filter(Boolean))].sort((a,b)=>b.length-a.length)){
@@ -400,7 +401,9 @@ function focusMarkup(text,answer,fragments=[]){
   return html+escapeHtml(text.slice(cursor));
 }
 function flashGrammarFocus(text,answer,fragments){
-  const el=$("questionText");if(!el)return;el.innerHTML=focusMarkup(text,answer,fragments);el.classList.remove("focus-active");void el.offsetWidth;el.classList.add("focus-active");
+  const el=$("questionText");if(!el)return;
+  if(current?.lemma){renderVerbPrompt(current,text);return;}
+  el.innerHTML=focusMarkup(text,answer,fragments);el.classList.remove("focus-active");void el.offsetWidth;el.classList.add("focus-active");
 }
 function hideCorrectReveal(){const el=$("correctReveal");if(!el)return;el.className="correct-reveal";el.innerHTML="";}
 function showCorrectReveal(answer,pos){
@@ -528,11 +531,11 @@ function buildFinalPlan(){
   return result.slice(0,30);
 }
 function shuffleOptions(q){
-  const items=q.a.map((x,i)=>({x,ok:i===q.c})),correct=items.find(x=>x.ok),wrong=items.filter(x=>!x.ok);
+  const items=q.a.map((x,i)=>({x,ok:i===q.c,meta:q.optionMeta?.[i]||null})),correct=items.find(x=>x.ok),wrong=items.filter(x=>!x.ok);
   for(let i=wrong.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[wrong[i],wrong[j]]=[wrong[j],wrong[i]];}
   const seenCount=seenInfo(q)?.count||0,cycle=[0,3,1,2],start=stableHash(q.fingerprint)%4,targetPos=cycle[(start+seenCount)%4],arr=[];
   let wi=0;for(let i=0;i<4;i++)arr.push(i===targetPos?correct:wrong[wi++]);
-  return {...q,display:arr.map(x=>x.x),correctPos:targetPos};
+  return {...q,display:arr.map(x=>x.x),displayMeta:arr.map(x=>x.meta),correctPos:targetPos};
 }
 function currentStageText(){const s=stageInfo(overallStats().coverage);return `Stage ${s.index+1}/6 · ${s.name}`;}
 function deltaText(value,goodUp=true,suffix=""){
@@ -658,25 +661,29 @@ function coachSkillMovement(limit=5){
   return out.sort((a,b)=>Math.abs(b.delta)-Math.abs(a.delta)).slice(0,limit);
 }
 function coachSnapshot(){
+  const cs=overallStats(),cf=focusSummary(),life=lifetimeLevelScoreStats(),first=state.history.find(r=>Number.isFinite(r.ts))?.ts||state.createdAt||Date.now(),span=Math.max(0,(Date.now()-first)/86400000),due=Object.values(state.seen).filter(x=>x?.lastTs&&Date.now()>=(x.nextDueTs||x.lastTs+(x.intervalDays||1)*86400000)).length;
+  const tenseLeague=[...new Set(BANK.map(q=>q.tenseId).filter(Boolean))].map(id=>{const rows=state.history.filter(r=>r.tenseId===id),n=rows.length,correct=rows.filter(r=>r.correct).length,automatic=rows.filter(r=>r.type==="automatic").length;return {tenseId:id,label:BANK.find(q=>q.tenseId===id)?.tenseLabel||id,attempts:n,accuracyPct:n?+(correct/n*100).toFixed(1):null,automaticPct:n?+(automatic/n*100).toFixed(1):null,avgResponseSec:n?+(mean(rows.map(r=>r.ms))/1000).toFixed(2):null};}).sort((a,b)=>(b.accuracyPct??-1)-(a.accuracyPct??-1)||b.attempts-a.attempts);
+  const errorTypes={};for(const r of state.history){if(!r.correct&&r.errorType)errorTypes[r.errorType]=(errorTypes[r.errorType]||0)+1;}
+  return {schema:"ADAPTIVE_VERBS_CATALA_GLOBAL_V1",appVersion:APP_VERSION,campaign:CAMPAIGN.campaignId,bankStage:CAMPAIGN.bankStage,activeRetrievalMode:CAMPAIGN.activeRetrievalMode,level:state.level,sessions:state.sessions,totalAnswers:state.totalAttempts,uniqueFormsSeen:Object.keys(state.seen).length,bankSize:BANK.length,studySpanDays:+span.toFixed(1),focusTime:{todayMin:+(cf.todayMs/60000).toFixed(1),weekMin:+(cf.weekMs/60000).toFixed(1),totalMin:+(cf.totalMs/60000).toFixed(1),dailyTargetMin:cf.target.recommended},dueReviews:due,avgHitsPerLevel:life.avgHits==null?null:+life.avgHits.toFixed(2),completedTrainingLevels:life.levels,coveragePct:+(cs.coverage*100).toFixed(1),masteryPct:+(cs.mastery*100).toFixed(1),allTimeAccuracyPct:+(cs.allTimeAccuracy*100).toFixed(1),recentAccuracyPct:+(cs.accuracy*100).toFixed(1),automaticPct:+(cs.auto*100).toFixed(1),avgResponseSec:+(cs.avgMs/1000).toFixed(2),verbControl:+(cs.rating*100).toFixed(1),verbLeague:[...rankedSkills()].reverse().map((x,i)=>({rank:i+1,verb:x.name,masteryPct:+(x.mastery*100).toFixed(1),attempts:x.m.attempts||0})),tenseLeague,errorTypeCounts:errorTypes,recentErrors:state.history.filter(r=>!r.correct).slice(-80).map(r=>({formId:r.formId,verb:r.lemma,tense:r.tenseLabel,person:r.personLabel,myAnswer:r.userAnswer,correctAnswer:r.correctAnswer,errorType:r.errorType,responseTimeSec:+((r.ms||0)/1000).toFixed(2)}))};
   const st=overallStats(),ai=aiValorationStats(),learning=learningScoreStats(),peer=typicalLearnerStats(),c2=campaign2Readiness(),estimate=campaignPracticeEstimate(),focus=coachSkillStats().slice(0,5),mistakes=commonMistakeGroups(8),trend=coachTrendSummary(),moves=coachSkillMovement(),targetPerf=targetPerformanceStats(),readingLoad=readingLoadStats(),focusTime=focusSummary();
   const firstTs=state.history.find(r=>Number.isFinite(r.ts))?.ts||state.createdAt||Date.now(),studySpanDays=Math.max(0,(Date.now()-firstTs)/86400000),dueQuestionCount=Object.values(state.seen).filter(x=>x?.lastTs&&Date.now()>=(x.nextDueTs||x.lastTs+(x.intervalDays||1)*86400000)).length;
   return {appVersion:APP_VERSION,campaign:CAMPAIGN.campaignId||CAMPAIGN.id||"AE-C1",level:state.level,sessions:state.sessions,totalAnswers:state.totalAttempts,uniqueSeen:Object.keys(state.seen).length,bankSize:BANK.length,studySpanDays:+studySpanDays.toFixed(1),focusTime:{todayMin:+(focusTime.todayMs/60000).toFixed(1),weekMin:+(focusTime.weekMs/60000).toFixed(1),totalMin:+(focusTime.totalMs/60000).toFixed(1),dailyTargetMin:focusTime.target.recommended,minimumMin:focusTime.target.minimum,stretchMin:focusTime.target.stretch},dueQuestionCount,coveragePct:+(st.coverage*100).toFixed(1),masteryPct:+(st.mastery*100).toFixed(1),allTimeAccuracyPct:+(st.allTimeAccuracy*100).toFixed(1),allTimeCorrect:st.allTimeCorrect,avgHitsPerLevel:+(lifetimeLevelScoreStats().avgHits??0).toFixed(2),completedTrainingLevels:lifetimeLevelScoreStats().levels,recentAccuracyPct:+(st.accuracy*100).toFixed(1),recentAutomaticPct:+(st.auto*100).toFixed(1),avgResponseSec:+(st.avgMs/1000).toFixed(2),aeRating:+(st.rating*100).toFixed(1),learningScore:learning.current==null?null:+learning.current.toFixed(1),learningTrendDelta:learning.delta==null?null:+learning.delta.toFixed(1),aiLevel:ai.level,aiConfidencePct:+(ai.confidence*100).toFixed(1),typicalLearner:{you:peer.actual==null?null:+peer.actual.toFixed(1),healthyMin:+peer.healthyMin.toFixed(1),typical:+peer.typical.toFixed(1),strongPace:+peer.strongPace.toFixed(1),paceDelta:peer.delta==null?null:+peer.delta.toFixed(1),label:peer.label},graduationReadinessPct:+(c2.score*100).toFixed(1),campaignLearningProgressPct:+(estimate.learningProgress*100).toFixed(1),campaign2PracticeEstimate:{practiceHours:+estimate.hours.toFixed(1),rangeHours:[+estimate.hoursLow.toFixed(1),+estimate.hoursHigh.toFixed(1)],daysAtCurrentPace:estimate.days,dailyPaceMin:+estimate.paceMinutes.toFixed(1),paceBasis:estimate.paceBasis,calendarFloorDays:estimate.calendarFloor,mainGate:estimate.mainGate,confidence:estimate.confidenceLabel,hourDriver:estimate.hourDriver,gateHours:estimate.gateHours,dailyPlan:estimate.dailyPlan},targetPerformance:targetPerf.n?{levels:targetPerf.n,avgTarget:+targetPerf.avgTarget.toFixed(2),avgActual:+targetPerf.avgActual.toFixed(2),avgDelta:+targetPerf.avgDelta.toFixed(2),hitRatePct:+(targetPerf.hitRate*100).toFixed(1),abovePct:+(targetPerf.aboveRate*100).toFixed(1),exactPct:+(targetPerf.onRate*100).toFixed(1),belowPct:+(targetPerf.belowRate*100).toFixed(1)}:null,readingLoad:{windowAnswers:readingLoad.windowAnswers,short:readingLoadBucketForCoach(readingLoad.short),medium:readingLoadBucketForCoach(readingLoad.medium),long:readingLoadBucketForCoach(readingLoad.long),longVsShort:{accuracyDeltaPts:readingLoad.longVsShort.accuracyDeltaPts==null?null:+readingLoad.longVsShort.accuracyDeltaPts.toFixed(1),timeDeltaSec:readingLoad.longVsShort.timeDeltaMs==null?null:+(readingLoad.longVsShort.timeDeltaMs/1000).toFixed(2),timeoutDeltaPts:readingLoad.longVsShort.timeoutDeltaPts==null?null:+readingLoad.longVsShort.timeoutDeltaPts.toFixed(1)},evidence:readingLoad.evidence.label,lengthSensitiveSkills:readingLoad.sensitiveSkills.map(x=>({skill:x.skill,shortN:x.shortN,longN:x.longN,longVsShortAccuracyPts:+x.accuracyDeltaPts.toFixed(1),longVsShortTimeSec:+(x.timeDeltaMs/1000).toFixed(2)}))},recentTrend:trend,focus:focus.map(x=>({skill:x.name,masteryPct:+(x.mastery*100).toFixed(1),recentErrorPct:+(x.wrongRate*100).toFixed(1),attempts:x.m.attempts||0})),skillMovement:moves.map(x=>({skill:x.skill,deltaAccuracyPts:+x.delta.toFixed(1),recentAccuracyPct:+x.recent.toFixed(1),recentN:x.n})),commonMistakes:mistakes.map(g=>({skill:skillLabel(g.cat),recentMisses:g.count,question:g.record.question||g.record.originalQuestion||"",yourAnswer:g.record.userAnswer||"",correct:g.record.correctAnswer||"",rule:learningTerminology(g.record.rule||"")})),allSkills:[...rankedSkills()].reverse().map(x=>({skill:x.name,masteryPct:+(x.mastery*100).toFixed(1),attempts:x.m.attempts||0}))};
 }
 const AI_ANALYSIS_CONTRACT={
-  language:"Answer mainly in Spanish; keep English examples in English.",
-  goal:"Act as an English coach. Compare trends, not only current scores; distinguish acquisition from longitudinal retention.",
-  priorities:"Identify 3-5 highest-value grammar targets, conceptual confusions versus speed/automaticity slips, and a concrete focus for the next 5-10 levels.",
-  spanishL1:"The learner is a native Spanish speaker. When evidence supports it, explain the Spanish mental pattern or calque that is tempting the learner, then contrast it with the English pattern. Do not force a Spanish-L1 explanation when an error is better explained by speed, reading load or attention.",
-  discoveryMethod:"Prefer pattern discovery: confusion → contrast → short retrieval rule. Only propose a mnemonic/hook when it compresses a demonstrated recurring problem; do not front-load many tricks.",
-  terminology:"Use 'infinitivo sin to' rather than 'base verb' or 'bare infinitive' in learner-facing explanations.",
-  timer:"The 10-second clock is intentionally fixed. Do not recommend changing it from weak or insufficient reading-load evidence.",
-  typicalLearner:"Typical Learner figures are a synthetic model, not measured population averages. Treat them only as an internal pace reference.",
-  retention:"Use real calendar study span and due-review count when judging consolidation. High same-week volume is not proof of long-term retention."
+  language:"Answer mainly in Spanish; keep Catalan verb forms exactly as written.",
+  goal:"Act as a Catalan verb coach. Compare longitudinal trends, not only current scores; distinguish recognition, automaticity and retention.",
+  priorities:"Identify the 3-5 highest-value verb, tense/mood, person, stem or orthographic targets and a concrete focus for the next 5-10 levels.",
+  errors:"Use formId, verb, tense/mood, person and errorType. Distinguish PERSON_CONFUSION, TENSE_CONFUSION, MOOD_CONFUSION, STEM_ERROR, ACCENT_ERROR, TIMEOUT and OTHER.",
+  discoveryMethod:"Prefer pattern discovery: repeated error → contrast → short Key → verify on later spaced questions. Do not front-load rules.",
+  orthography:"Accents and diaereses are part of the answer. Treat missing or wrong diacritics as real orthographic errors.",
+  timer:"The 6-second clock is intentionally fixed during the pilot. Do not recommend changing it without substantial evidence.",
+  retention:"Use real calendar study span and due-review count when judging consolidation. Same-day recognition is not proof of retention.",
+  scope:"This app teaches Catalan verb forms only. Do not expand recommendations into general vocabulary, reading comprehension or unrelated grammar."
 };
-function learningMethodContext(){return {nativeLanguage:"Spanish",preferredTerm:"infinitivo sin to",provenHooks:[{skill:"make + object + infinitivo sin to",hook:"MAKE/MADE → NO TO · MAKE ME FEEL"},{skill:"used to + infinitivo sin to vs get/be used to + -ing",hook:"GOTYE → CORTO · BE/GET → -ING"},{skill:"would rather",hook:"MISMO → INFINITIVO SIN TO · OTRO → PASADO",status:"new; test before calling it consolidated"}],method:"Let the learner struggle enough to expose the pattern, then compress it into a short retrieval cue and verify it on later spaced questions."};}
-function globalCoachPayload(){return {schema:"ADAPTIVE_ENGLISH_GLOBAL_V1",task:"analyze_longitudinal_campaign_progress",analysisContract:AI_ANALYSIS_CONTRACT,learningMethod:learningMethodContext(),global:coachSnapshot()};}
+function learningMethodContext(){return {nativeLanguage:"Spanish",targetLanguage:"Catalan",variety:"central/general",scope:"verb forms only",retrievalProgression:["RECOGNITION","BUILD","PRODUCTION"],method:"Let errors expose the pattern, compress recurring problems into short Keys, and verify them later with spaced retrieval."};}
+function globalCoachPayload(){return {schema:"ADAPTIVE_VERBS_CATALA_GLOBAL_V1",task:"analyze_catalan_verb_learning_longitudinally",analysisContract:AI_ANALYSIS_CONTRACT,learningMethod:learningMethodContext(),global:coachSnapshot()};}
 function globalCoachJsonText(){return JSON.stringify(globalCoachPayload(),null,2);}
-function coachPromptText(){const p=globalCoachPayload();return `Analyze this Adaptive English Campaign 1 snapshot as my English coach. Follow the analysisContract in the JSON.\n\nADAPTIVE_ENGLISH_GLOBAL_JSON\n${JSON.stringify(p)}`;}
+function coachPromptText(){const p=globalCoachPayload();return `Analyze this Adaptive Verbs · Català Campaign 1 snapshot as my Catalan verb coach. Follow the analysisContract in the JSON.\n\nADAPTIVE_VERBS_CATALA_GLOBAL_JSON\n${JSON.stringify(p)}`;}
 async function writeClipboardText(text){
   try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);return true;}}catch(e){}
   try{const t=document.createElement("textarea");t.value=text;t.setAttribute("readonly","");t.style.position="fixed";t.style.opacity="0";document.body.appendChild(t);t.select();t.setSelectionRange(0,t.value.length);const ok=document.execCommand("copy");t.remove();return !!ok;}catch(e){return false;}
@@ -760,12 +767,17 @@ function renderStatsScreen(){
   $("statsAiLevel").textContent=`${ai.level} / 15`;paintText("statsAiLevel",ai.score/100);$("statsAiConfidence").textContent=`Evidence ${Math.round(ai.confidence*100)}%`;paintText("statsAiConfidence",ai.confidence);
   $("statsLearningScore").textContent=learning.current==null?"—":learning.current.toFixed(1);if(learning.current!=null)paintText("statsLearningScore",learning.current/100);const ld=$("statsLearningDelta");if(learning.delta==null){ld.className="learning-direction neutral";ld.textContent="→";ld.style.color="#b7c9bf";}else{const up=learning.delta>.05,down=learning.delta<-.05;ld.className=`learning-direction ${up?"good":down?"bad":"neutral"}`;ld.textContent=`${up?"↑":down?"↓":"→"} ${learning.delta>=0?"+":""}${learning.delta.toFixed(1)}`;ld.style.color=semanticDeltaColor(learning.delta,true);}$("statsLearningWindow").textContent=`Last ${learning.windowSize} vs previous ${learning.windowSize} levels`;
   [["statsCoverage",st.coverage,true],["statsMastery",st.mastery,true],["statsAccuracy",st.accuracy,true],["statsAutomatic",st.auto,true]].forEach(([id,v,pc])=>{$(id).textContent=pc?`${pct(v)}%`:String(v);paintText(id,v);});{const life=lifetimeLevelScoreStats();$("statsAllAccuracy").textContent=life.avgHits==null?"-":`${life.avgHits.toFixed(1)} /15`;if(life.avgHits!=null)paintScore("statsAllAccuracy",life.avgHits);}$("statsAvg").textContent=st.avgMs?fmtSec(st.avgMs):"—";$("statsTotal").textContent=(state.totalAttempts||0).toLocaleString();$("statsStudyTime").textContent=formatStudyTime(state.activeTrainingMs||0);
-  $("statsAccuracyChart").innerHTML=sessionScoreChart(trend,false);$("statsLearningChart").innerHTML=sparkline(learningCurveSeries(),v=>`${v.toFixed(1)}`,false,learning.start,"Start");$("statsSkills").innerHTML=skillLeagueHtml(rankedSkills(),true);
+  $("statsAccuracyChart").innerHTML=sessionScoreChart(trend,false);$("statsLearningChart").innerHTML=sparkline(learningCurveSeries(),v=>`${v.toFixed(1)}`,false,learning.start,"Start");$("statsSkills").innerHTML=skillLeagueHtml(rankedSkills(),true);if($("statsTenses"))$("statsTenses").innerHTML=tenseLeagueHtml();
   if(tgt.n){$("targetAvg").textContent=tgt.avgTarget.toFixed(1);paintScore("targetAvg",tgt.avgTarget);$("targetActualAvg").textContent=tgt.avgActual.toFixed(1);paintScore("targetActualAvg",tgt.avgActual);$("targetDeltaAvg").textContent=`${tgt.avgDelta>=0?"+":""}${tgt.avgDelta.toFixed(2)}`;paintDelta("targetDeltaAvg",tgt.avgDelta,true);$("targetHitRate").textContent=`${Math.round(tgt.hitRate*100)}%`;paintText("targetHitRate",tgt.hitRate);$("targetBreakdown").textContent=`${tgt.n} target levels · Above ${Math.round(tgt.aboveRate*100)}% · Exact ${Math.round(tgt.onRate*100)}% · Below ${Math.round(tgt.belowRate*100)}%`; }else{$("targetBreakdown").textContent="Complete levels with TARGET to build this statistic.";}
   [["readingShort", "readingShortMeta", readingLoad.short],["readingMedium", "readingMediumMeta", readingLoad.medium],["readingLong", "readingLongMeta", readingLoad.long]].forEach(([id,metaId,x])=>{const main=$(id),meta=$(metaId);main.textContent=x.n?`${Math.round(x.accuracy*100)}%`:"—";if(x.n)paintText(id,x.accuracy);meta.textContent=x.n?`${fmtSec(x.avgMs)} avg · ${Math.round(x.timeoutRate*100)}% timeout · n=${x.n}`:"No evidence yet";});
   const loadInsight=$("readingLoadInsight"),sensitive=readingLoad.sensitiveSkills[0];loadInsight.textContent=`${readingLoad.evidence.label} · ${readingLoad.evidence.detail}${sensitive?` Most length-sensitive key so far: ${sensitive.skill} (${sensitive.accuracyDeltaPts.toFixed(1)} pts long vs short).`:""}`;
   $("statsPeerYou").textContent=peer.actual==null?"—":peer.actual.toFixed(1);if(peer.actual!=null)paintText("statsPeerYou",peer.actual/100);$("statsPeerHealthy").textContent=peer.healthyMin.toFixed(1);paintText("statsPeerHealthy",peer.healthyMin/100);$("statsPeerExpected").textContent=peer.typical.toFixed(1);paintText("statsPeerExpected",peer.typical/100);$("statsPeerStrong").textContent=peer.strongPace.toFixed(1);paintText("statsPeerStrong",peer.strongPace/100);const peerText=peer.delta==null?"—":`${peer.delta>=0?"+":""}${peer.delta.toFixed(1)}`;$("statsPeerDelta").textContent=peerText;$("statsPeerDeltaMini").textContent=peerText;if(peer.delta!=null){paintDelta("statsPeerDelta",peer.delta,true);paintDelta("statsPeerDeltaMini",peer.delta,true);}const pd=$("statsPeerDelta");pd.className=`peer-delta ${peer.delta==null||Math.abs(peer.delta)<2?"neutral":peer.delta>0?"good":"bad"}`;$("statsPeerLabel").textContent=`${peer.label} · Typical range ${peer.healthyMin.toFixed(1)}–${peer.strongPace.toFixed(1)} at ${peer.attempts.toLocaleString()} answers. Model-based reference, not measured users.`;
   $("statsCampaign2").textContent=`Graduation readiness ${pct(c2.score)}% · ${c2.stage}${c2.ready?" · Graduation gate achieved":" · "+(c2.blockers[0]||"Keep consolidating")}`;$("statsCampaign2").style.color=valueTextColor(c2.score);
+}
+function tenseLeagueHtml(){
+  const ids=[...new Set(BANK.map(q=>q.tenseId).filter(Boolean))];
+  const rows=ids.map(id=>{const h=state.history.filter(r=>r.tenseId===id),n=h.length,acc=n?h.filter(r=>r.correct).length/n:0,auto=n?h.filter(r=>r.type==="automatic").length/n:0,avg=n?mean(h.map(r=>r.ms)):0,label=BANK.find(q=>q.tenseId===id)?.tenseLabel||id,score=n?.72*acc+.18*auto+.10*(1-clamp(avg/(TIME_LIMIT*1000))):0;return{id,label,n,acc,auto,avg,score};}).sort((a,b)=>b.score-a.score||b.n-a.n);
+  return rows.map((x,i)=>'<div class="skillrow"><div><b>'+(i+1)+'. '+escapeHtml(x.label)+'</b><small>'+(x.n<12?'PROVISIONAL · ':'')+'n='+x.n+' · '+(x.avg?fmtSec(x.avg):'—')+'</small></div><div class="track"><div class="fill" style="width:'+pct(x.score)+'%;background:'+valueColor(x.score)+'"></div></div><strong style="color:'+valueTextColor(x.score)+'">'+(x.n?pct(x.acc)+'%':'—')+'</strong></div>').join("");
 }
 function campaignLearningProgress(st=overallStats()){
   const initialMastery=mean(Object.values(INITIAL_PRIORS).map(x=>.45*x[0]+.35*x[1]+.20*x[2]));
@@ -894,19 +906,19 @@ function sessionSkillSummary(records){
   const groups={};for(const r of records||[]){const g=groups[r.cat]||(groups[r.cat]={cat:r.cat,attempts:0,correct:0,totalMs:0,automatic:0});g.attempts++;g.correct+=r.correct?1:0;g.totalMs+=r.ms||0;g.automatic+=r.type==="automatic"?1:0;}
   return Object.values(groups).map(g=>({skill:skillLabel(g.cat),attempts:g.attempts,correct:g.correct,accuracyPct:+(g.correct/g.attempts*100).toFixed(1),avgResponseSec:+(g.totalMs/g.attempts/1000).toFixed(2),automaticPct:+(g.automatic/g.attempts*100).toFixed(1)})).sort((a,b)=>a.accuracyPct-b.accuracyPct||b.attempts-a.attempts);
 }
-function compactSessionError(r){const fp=errorFingerprint(r),mc=misconceptionFingerprint(r);return {skill:skillLabel(r.cat),categoryId:r.cat,question:r.question||r.originalQuestion||"",myAnswer:r.userAnswer||"No answer",correctAnswer:r.correctAnswer||"",responseTimeSec:+((r.ms||0)/1000).toFixed(2),errorType:r.type||"wrong",readingLoad:r.readingLoad||null,review:!!r.review,reviewGapLevels:r.gap??null,rule:learningTerminology(r.rule||""),errorFingerprint:fp,misconceptionFingerprint:mc};}
+function compactSessionError(r){const fp=errorFingerprint(r),mc=misconceptionFingerprint(r);return {formId:r.formId||null,verb:r.lemma||r.cat,tenseId:r.tenseId||null,tense:r.tenseLabel||null,mood:r.mood||null,personCode:r.personCode||null,person:r.personLabel||null,retrievalMode:r.retrievalMode||"RECOGNITION",question:r.question||r.originalQuestion||"",myAnswer:r.userAnswer||"No answer",correctAnswer:r.correctAnswer||"",responseTimeSec:+((r.ms||0)/1000).toFixed(2),errorType:r.errorType||r.type||"OTHER",selectedMeta:r.selectedMeta||null,review:!!r.review,reviewGapLevels:r.gap??null,rule:r.rule||"",errorFingerprint:fp,misconceptionFingerprint:mc};}
 function sessionErrorGroupsPayload(records){
-  return levelErrorGroups(records).map(g=>{const item=itemCoach(g.records[0]||{}),mis={};for(const r of g.records){const m=misconceptionFingerprint(r),x=mis[m.id]||(mis[m.id]={id:m.id,label:m.label,count:0,evidence:m.evidence,historicalCount:m.count,recentCount:m.recentCount});x.count++;}return {skill:skillLabel(g.cat),categoryId:g.cat,variant:g.variant||"default",misses:g.records.length,formula:learningTerminology(item.formula||g.records[0]?.rule||""),quickRule:learningTerminology(item.quick||""),spanishContrastPrompt:"Explain this group contrastively when supported: Spanish mental pattern/calque → why it tempts me → English pattern. If the evidence looks like a speed/attention slip instead, say so rather than forcing an L1 explanation.",misconceptions:Object.values(mis),examples:g.records.map(r=>({question:r.question||r.originalQuestion||"",myAnswer:r.userAnswer||"No answer",correctAnswer:r.correctAnswer||"",responseTimeSec:+((r.ms||0)/1000).toFixed(2),errorType:r.type||"wrong"}))};});
+  return levelErrorGroups(records).map(g=>{const item=itemCoach(g.records[0]||{}),mis={};for(const r of g.records){const m=misconceptionFingerprint(r),x=mis[m.id]||(mis[m.id]={id:m.id,label:m.label,count:0,evidence:m.evidence,historicalCount:m.count,recentCount:m.recentCount});x.count++;}return {skill:skillLabel(g.cat),categoryId:g.cat,variant:g.variant||"default",misses:g.records.length,formula:learningTerminology(item.formula||g.records[0]?.rule||""),quickRule:learningTerminology(item.quick||""),spanishContrastPrompt:"Explain the Catalan conjugation contrast using the recorded verb, tense/mood, person and errorType. Mention Spanish interference only when the evidence actually supports it; otherwise treat it as a Catalan-form, accent or automaticity error.",misconceptions:Object.values(mis),examples:g.records.map(r=>({question:r.question||r.originalQuestion||"",myAnswer:r.userAnswer||"No answer",correctAnswer:r.correctAnswer||"",responseTimeSec:+((r.ms||0)/1000).toFixed(2),errorType:r.type||"wrong"}))};});
 }
-function sessionErrorsPayload(records=session?.records||[]){const wrong=(records||[]).filter(r=>!r.correct);return {schema:"ADAPTIVE_ENGLISH_SESSION_ERRORS_V1",task:"diagnose_latest_level_errors",analysisContract:AI_ANALYSIS_CONTRACT,learningMethod:learningMethodContext(),session:{level:records?.[0]?.level??null,totalAnswers:records?.length||0,errors:wrong.length,skillSummary:sessionSkillSummary(records)},errorGroups:sessionErrorGroupsPayload(wrong),errors:wrong.map(compactSessionError)};}
-function sessionHandoffPayload(snap,records=session?.records||[]){const wrong=(records||[]).filter(r=>!r.correct);return {schema:"ADAPTIVE_ENGLISH_GLOBAL_PLUS_SESSION_V1",task:"analyze_longitudinal_progress_and_latest_level",analysisContract:AI_ANALYSIS_CONTRACT,learningMethod:learningMethodContext(),global:coachSnapshot(),latestSession:{level:snap?.level??records?.[0]?.level??null,mode:snap?.mode||records?.[0]?.sessionMode||"training",correct:snap?.correct??records.filter(r=>r.correct).length,total:snap?.total??records.length,accuracyPct:snap?.accuracy==null?null:+(snap.accuracy*100).toFixed(1),avgResponseSec:snap?.avgMs==null?null:+(snap.avgMs/1000).toFixed(2),automaticPct:snap?.automatic==null?null:+(snap.automatic*100).toFixed(1),target:snap?.target??null,targetDelta:snap?.targetDelta??null,targetHit:snap?.targetHit??null,skillSummary:sessionSkillSummary(records),errorCount:wrong.length,errorGroups:sessionErrorGroupsPayload(wrong),errors:wrong.map(compactSessionError)}};}
+function sessionErrorsPayload(records=session?.records||[]){const wrong=(records||[]).filter(r=>!r.correct);return {schema:"ADAPTIVE_VERBS_CATALA_SESSION_ERRORS_V1",task:"diagnose_latest_catalan_verb_errors",analysisContract:AI_ANALYSIS_CONTRACT,learningMethod:learningMethodContext(),session:{level:records?.[0]?.level??null,totalAnswers:records?.length||0,errors:wrong.length,verbSummary:sessionSkillSummary(records)},errorGroups:sessionErrorGroupsPayload(wrong),errors:wrong.map(compactSessionError)};}
+function sessionHandoffPayload(snap,records=session?.records||[]){const wrong=(records||[]).filter(r=>!r.correct);return {schema:"ADAPTIVE_VERBS_CATALA_GLOBAL_PLUS_SESSION_V1",task:"analyze_catalan_verb_progress_and_latest_level",analysisContract:AI_ANALYSIS_CONTRACT,learningMethod:learningMethodContext(),global:coachSnapshot(),latestSession:{level:snap?.level??records?.[0]?.level??null,mode:snap?.mode||records?.[0]?.sessionMode||"training",retrievalMode:CAMPAIGN.activeRetrievalMode,correct:snap?.correct??records.filter(r=>r.correct).length,total:snap?.total??records.length,accuracyPct:snap?.accuracy==null?null:+(snap.accuracy*100).toFixed(1),avgResponseSec:snap?.avgMs==null?null:+(snap.avgMs/1000).toFixed(2),automaticPct:snap?.automatic==null?null:+(snap.automatic*100).toFixed(1),target:snap?.target??null,targetDelta:snap?.targetDelta??null,targetHit:snap?.targetHit??null,verbSummary:sessionSkillSummary(records),errorCount:wrong.length,errorGroups:sessionErrorGroupsPayload(wrong),errors:wrong.map(compactSessionError)}};}
 let lastSessionHandoffText="";
 function sessionHandoffJsonText(snap,records=session?.records||[]){return JSON.stringify(sessionHandoffPayload(snap,records),null,2);}
-function setEndHandoffStatus(ok,auto=true){const box=$("endAiHandoff"),status=$("endHandoffStatus"),meta=$("endHandoffMeta"),btn=$("endCopyHandoffBtn");if(!box||!status||!btn)return;box.classList.toggle("copied",!!ok);status.textContent=ok?(auto?"COPIED TO CLIPBOARD":"COPIED · READY TO PASTE"):(auto?"READY · TAP ONCE TO COPY":"COPY BLOCKED · TAP AGAIN");if(meta)meta.textContent="Global progress + this level + every session error + error groups + Spanish-L1 contrast instructions.";btn.textContent=ok?"COPY AGAIN":"COPY GLOBAL + SESSION JSON";}
+function setEndHandoffStatus(ok,auto=true){const box=$("endAiHandoff"),status=$("endHandoffStatus"),meta=$("endHandoffMeta"),btn=$("endCopyHandoffBtn");if(!box||!status||!btn)return;box.classList.toggle("copied",!!ok);status.textContent=ok?(auto?"COPIED TO CLIPBOARD":"COPIED · READY TO PASTE"):(auto?"READY · TAP ONCE TO COPY":"COPY BLOCKED · TAP AGAIN");if(meta)meta.textContent="Global progress + this level + every verb-form error + tense/person/error-type metadata.";btn.textContent=ok?"COPY AGAIN":"COPY GLOBAL + SESSION JSON";}
 async function autoCopySessionHandoff(snap){lastSessionHandoffText=sessionHandoffJsonText(snap,session?.records||[]);const ok=await writeClipboardText(lastSessionHandoffText);setEndHandoffStatus(ok,true);return ok;}
 async function copyEndSessionHandoff(){if(!lastSessionHandoffText){const snap=state.sessionHistory[state.sessionHistory.length-1]||null;lastSessionHandoffText=sessionHandoffJsonText(snap,session?.records||[]);}const ok=await writeClipboardText(lastSessionHandoffText);setEndHandoffStatus(ok,false);return ok;}
 async function copySessionErrorsJson(btn=null){const text=JSON.stringify(sessionErrorsPayload(session?.records||[]),null,2),ok=await writeClipboardText(text);if(btn){const old=btn.textContent;btn.textContent=ok?"SESSION ERRORS COPIED":"COPY BLOCKED · TAP AGAIN";setTimeout(()=>btn.textContent=old,1400);}return ok;}
-function errorPromptPayload(r){const fp=errorFingerprint(r),mc=misconceptionFingerprint(r);return {task:"diagnose_one_english_error",app:"Adaptive English",version:APP_VERSION,skill:skillLabel(r.cat),question:r.question||r.originalQuestion||"",my_answer:r.userAnswer||"No answer",correct_answer:r.correctAnswer||"",response_time_sec:+((r.ms||0)/1000).toFixed(2),error_type:r.type||"wrong",level:r.level,error_fingerprint:fp,misconception_fingerprint:mc,instruction:"Diagnose only this error. Explain the likely misconception without pretending certainty. Use the historical pattern as evidence, distinguish conceptual confusion from a possible execution slip, contrast my wrong form with the correct form, and when supported explicitly show Spanish mental pattern/calque → English pattern. Do not force an L1 explanation for a likely speed/attention slip. Give one memorable rule, 3 minimal pairs, and a very short retrieval drill. Use the learner term infinitivo sin to. Answer mainly in Spanish, using English for the examples."};}
+function errorPromptPayload(r){const fp=errorFingerprint(r),mc=misconceptionFingerprint(r);return {task:"diagnose_one_catalan_verb_error",app:"Adaptive Verbs · Català",version:APP_VERSION,formId:r.formId,verb:r.lemma||r.cat,tense:r.tenseLabel,person:r.personLabel,question:r.question||r.originalQuestion||"",my_answer:r.userAnswer||"No answer",correct_answer:r.correctAnswer||"",response_time_sec:+((r.ms||0)/1000).toFixed(2),error_type:r.errorType||r.type||"OTHER",level:r.level,error_fingerprint:fp,misconception_fingerprint:mc,instruction:"Diagnose only this Catalan verb-form error. Use verb, tense/mood, person and errorType. Distinguish a paradigm/person confusion from accent/orthography and speed/attention. Give one very short retrieval rule only if the error pattern justifies it. Answer mainly in Spanish and preserve Catalan forms exactly."};}
 async function copyErrorPrompt(btn,index){const records=session?.records||[],groups=levelErrorGroups(records),r=groups[index]?.records?.slice(-1)[0];if(!r)return;const text=JSON.stringify(errorPromptPayload(r),null,2);try{await navigator.clipboard.writeText(text);btn.textContent="COPIED ✓";setTimeout(()=>btn.textContent="COPY ERROR JSON",1300);}catch(e){const t=document.createElement("textarea");t.value=text;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove();btn.textContent="COPIED ✓";}}
 function errorCoachCardHtml(group,index){
   const records=group.records||[],r=records[records.length-1]||{},lesson=(window.AE_LESSONS||{})[group.cat]||{},item=itemCoach(r),title=skillLabel(group.cat),echoes=[];
@@ -971,15 +983,16 @@ async function copyCampaign2Brief(){
   try{await navigator.clipboard.writeText(text);alert("Campaign 2 handoff copied. Export your progress too and send both to ChatGPT.");}
   catch(e){const t=document.createElement("textarea");t.value=text;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove();alert("Campaign 2 handoff copied. Export your progress too and send both to ChatGPT.");}
 }
+function baseKeyCount(){return CAMPAIGN?.skills?.length||10;}
 function localDateKey(ts=Date.now()){const d=new Date(ts),p=n=>String(n).padStart(2,"0");return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;}
 function calendarDayNumber(dateKey){const [y,m,d]=String(dateKey).split("-").map(Number);return Math.floor(Date.UTC(y,m-1,d)/86400000);}
 function addCalendarDays(dateKey,days){const [y,m,d]=String(dateKey).split("-").map(Number),dt=new Date(Date.UTC(y,m-1,d)+days*86400000),p=n=>String(n).padStart(2,"0");return `${dt.getUTCFullYear()}-${p(dt.getUTCMonth()+1)}-${p(dt.getUTCDate())}`;}
 function ensureDailyKey(){
   const today=localDateKey(),keys=window.AE_KEYS||{};let changed=false;
   const unique=[],used=new Set();for(const x of (Array.isArray(state.keyring)?state.keyring:[])){if(keys[x?.cat]&&!used.has(x.cat)){used.add(x.cat);unique.push(x);}}
-  state.keyring=unique.slice(0,25);state.keyring.forEach((x,i)=>{if(x.number!==i+1){x.number=i+1;changed=true;}});
+  state.keyring=unique.slice(0,baseKeyCount());state.keyring.forEach((x,i)=>{if(x.number!==i+1){x.number=i+1;changed=true;}});
   if(!state.keyJourneyStart){state.keyJourneyStart=state.keyring.map(x=>x.firstDate).filter(Boolean).sort()[0]||state.dailyKey?.date||today;changed=true;}
-  const elapsed=Math.max(0,calendarDayNumber(today)-calendarDayNumber(state.keyJourneyStart)),target=Math.min(25,Math.max(state.keyring.length,elapsed+1));
+  const elapsed=Math.max(0,calendarDayNumber(today)-calendarDayNumber(state.keyJourneyStart)),target=Math.min(baseKeyCount(),Math.max(state.keyring.length,elapsed+1));
   while(state.keyring.length<target){
     const taken=new Set(state.keyring.map(x=>x.cat)),ranked=coachSkillStats().filter(x=>keys[x.id]&&!taken.has(x.id)),evidenced=ranked.filter(x=>(x.m.attempts||0)>=3),pick=(evidenced.length?evidenced:ranked)[0]||CAMPAIGN.skills.find(x=>keys[x.id]&&!taken.has(x.id));
     if(!pick)break;const n=state.keyring.length+1,unlockDate=addCalendarDays(state.keyJourneyStart,n-1);state.keyring.push({cat:pick.id,number:n,firstDate:unlockDate,lastDate:unlockDate,exposures:1});changed=true;
@@ -990,15 +1003,15 @@ function ensureDailyKey(){
 }
 function keySlideHtml(x){
   const key=(window.AE_KEYS||{})[x.cat],skill=CAMPAIGN.skills.find(s=>s.id===x.cat),m=state.metrics[x.cat],mastery=m?metricMastery(m):0,n=x.number||1,echo=memoryEchoFor(x.cat,x.cat==="so_such"?"such":x.cat==="too_enough"?"enough":"");
-  return `<article class="key-slide" data-key-number="${n}"><div class="key-slide-meta"><span>BASE KEY ${n} / 25</span><small>${pct(mastery)}% MASTERY</small></div><button class="daily-key-card" type="button" aria-expanded="false"><div class="daily-key-face daily-key-front"><small>ESPAÑOL → INGLÉS</small><strong>${escapeHtml(key.front)}</strong><span>TOCA PARA REVELAR</span></div><div class="daily-key-face daily-key-back"><small>KEY ${n} UNLOCKED</small><strong>${escapeHtml(key.back)}</strong><b>${escapeHtml(key.formula)}</b><span>${escapeHtml(key.cue)}</span>${keyMemoryEchoHtml(x.cat)}</div></button>${spotifyOpenHtml(echo,"key-spotify-open")}</article>`;
+  return `<article class="key-slide" data-key-number="${n}"><div class="key-slide-meta"><span>BASE KEY ${n} / ${baseKeyCount()}</span><small>${pct(mastery)}% MASTERY</small></div><button class="daily-key-card" type="button" aria-expanded="false"><div class="daily-key-face daily-key-front"><small>FORMA VERBAL · CATALÀ</small><strong>${escapeHtml(key.front)}</strong><span>TOCA PARA REVELAR</span></div><div class="daily-key-face daily-key-back"><small>KEY ${n} UNLOCKED</small><strong>${escapeHtml(key.back)}</strong><b>${escapeHtml(key.formula)}</b><span>${escapeHtml(key.cue)}</span>${keyMemoryEchoHtml(x.cat)}</div></button>${spotifyOpenHtml(echo,"key-spotify-open")}</article>`;
 }
 function discoverySlideHtml(x){const echo=memoryEchoFor(x.echoCat||"","");return `<article class="key-slide discovery-slide" data-key-number="${x.number}"><div class="key-slide-meta"><span>DISCOVERY ${String(x.number).padStart(3,"0")}</span><small>DIARY KEY</small></div><button class="daily-key-card discovery-card" type="button" aria-expanded="false"><div class="daily-key-face daily-key-front"><small>${escapeHtml(x.title)}</small><strong>${escapeHtml(x.front)}</strong><span>TOCA PARA REVELAR</span></div><div class="daily-key-face daily-key-back"><small>KEY ${String(x.number).padStart(3,"0")} · DISCOVERED</small><strong>${escapeHtml(x.back)}</strong><b>${escapeHtml(x.formula)}</b><span>${escapeHtml(x.cue)}</span>${echo?`<em class="key-memory-echo"><small>MUSIC ECHO</small><span>${escapeHtml(echo.artist)} · ${escapeHtml(echo.title)}</span><b>${escapeHtml(echo.cue)}</b></em>`:""}</div></button>${spotifyOpenHtml(echo,"key-spotify-open")}</article>`;}
 function renderDailyKey(){
   const host=$("dailyKeyHost"),journey=ensureDailyKey();if(!host||!journey)return;
-  const unlocked=[...state.keyring].sort((a,b)=>(a.number||0)-(b.number||0)),discoveries=unlockedDiscoveryCards(),lockedN=Math.min(25,unlocked.length+1);
-  const marks=Array.from({length:25},(_,i)=>`<i class="${i<unlocked.length?"on":""}"></i>`).join("");
-  const locked=unlocked.length<25?`<article class="key-slide key-slide-locked" data-key-number="${lockedN}"><div class="key-slide-meta"><span>BASE KEY ${lockedN} / 25</span><small>LOCKED</small></div><div class="daily-key-card locked-card"><div class="daily-key-face"><small>NEXT BASE KEY</small><strong>?</strong><b>KEY ${lockedN}</b><span>SE DESBLOQUEA CON EL PRÓXIMO DÍA</span></div></div></article>`:"";
-  host.innerHTML=`<div class="daily-key-head"><div><span>KEY DIARY</span><b>${unlocked.length} / 25 BASE · ${discoveries.length} DISCOVERED</b></div><em>${unlocked.length+discoveries.length}</em></div><div class="key-marks" aria-label="${unlocked.length} of 25 base Keys unlocked">${marks}</div><div id="keyCarousel" class="key-carousel">${unlocked.map(keySlideHtml).join("")}${discoveries.map(discoverySlideHtml).join("")}${locked}</div><div class="key-carousel-hint">1 TOQUE: GIRAR · 2º TOQUE: SIGUIENTE</div>`;
+  const unlocked=[...state.keyring].sort((a,b)=>(a.number||0)-(b.number||0)),discoveries=unlockedDiscoveryCards(),lockedN=Math.min(baseKeyCount(),unlocked.length+1);
+  const marks=Array.from({length:baseKeyCount()},(_,i)=>`<i class="${i<unlocked.length?"on":""}"></i>`).join("");
+  const locked=unlocked.length<baseKeyCount()?`<article class="key-slide key-slide-locked" data-key-number="${lockedN}"><div class="key-slide-meta"><span>BASE KEY ${lockedN} / ${baseKeyCount()}</span><small>LOCKED</small></div><div class="daily-key-card locked-card"><div class="daily-key-face"><small>NEXT BASE KEY</small><strong>?</strong><b>KEY ${lockedN}</b><span>SE DESBLOQUEA CON EL PRÓXIMO DÍA</span></div></div></article>`:"";
+  host.innerHTML=`<div class="daily-key-head"><div><span>KEY DIARY</span><b>${unlocked.length} / ${baseKeyCount()} BASE · ${discoveries.length} DISCOVERED</b></div><em>${unlocked.length+discoveries.length}</em></div><div class="key-marks" aria-label="${unlocked.length} of ${baseKeyCount()} base Keys unlocked">${marks}</div><div id="keyCarousel" class="key-carousel">${unlocked.map(keySlideHtml).join("")}${discoveries.map(discoverySlideHtml).join("")}${locked}</div><div class="key-carousel-hint">1 TOQUE: GIRAR · 2º TOQUE: SIGUIENTE</div>`;
   const carousel=$("keyCarousel"),slides=[...carousel.querySelectorAll(".key-slide")],cards=[...carousel.querySelectorAll("button.daily-key-card")];
   const centerSlide=(slide,behavior="smooth")=>{if(!slide)return;const left=Math.max(0,slide.offsetLeft-(carousel.clientWidth-slide.clientWidth)/2);carousel.scrollTo({left,behavior});};
   cards.forEach(card=>card.addEventListener("click",async()=>{clearTimeout(card._autoTurnTimer);const slide=card.closest(".key-slide");if(!card.classList.contains("revealed")){card.classList.add("revealed");card.setAttribute("aria-expanded","true");try{await ensureAudio();playKeyFlip(true);}catch(e){console.error("Key flip audio failed",e);}card._autoTurnTimer=setTimeout(()=>{if(!card.classList.contains("revealed"))return;card.classList.remove("revealed");card.setAttribute("aria-expanded","false");try{playKeyFlip(false,true);}catch(e){}},10000);return;}
@@ -1034,7 +1047,7 @@ function renderGrowthTree(){
 }
 
 const RELEASE_NOTES=["v3.19 changes the lifetime dashboard controller to AVG HITS /15: mean correct answers per completed training level since Campaign 1 began","The same lifetime /15 mean appears in Statistics and is exported as avgHitsPerLevel; higher is better and the familiar 15-question scale is preserved","The previous all-time accuracy percentage remains available internally/JSON; no learning-engine, timing, sound or scheduler behavior changed","v3.18 adds ALL-TIME ACCURACY to the main dashboard and Statistics: total correct answers divided by total attempts since Campaign 1 began","All-time accuracy is computed from permanent per-skill counters, so it remains exact beyond the rolling history window; Recent accuracy stays separate and unchanged","The coach JSON now exports allTimeAccuracyPct and allTimeCorrect for longitudinal analysis; no mastery, rating, scheduler, progress or gameplay logic changed","v3.17 SCORE SOUND LADDER adds 15 coherent end-of-level sound grades: low scores use darker descending motifs, middle scores become neutral/ascending, high scores become increasingly triumphant, and 15/15 gets the full victory fanfare","The sound grade follows the actual score out of 15, independently of the adaptive target; question sounds, the fixed 10-second clock, progress, scheduler and learning algorithms are unchanged","v3.16 CONTENT VALIDITY AUDIT rewrites ambiguous or semantically weak question families while preserving every question ID, fingerprint, template ID, category, stored progress record and adaptive scheduling state","IF/UNLESS and DESPITE/ALTHOUGH now measure clean two-way contrasts; mixed-conditionals, modal deduction and relative-pronoun feedback are item-aware; should have, needn't have, backshift and several templated grammar families now use clearer natural contexts; the 10-second clock and adaptive algorithms are unchanged","v3.15 FINAL STUDY FREEZE adds a universal AI handoff: after each level the app prepares GLOBAL + SESSION JSON and makes a best-effort automatic clipboard copy, with a one-tap fallback when the browser blocks background clipboard writes","The handoff contains the full longitudinal coach snapshot, latest-level skill summary, every session error, grouped errors, misconception/error fingerprints and an explicit Spanish-L1 contrastive analysis contract usable with ChatGPT, Gemini or another AI","My Coach now copies a clean GLOBAL JSON directly; Error Lab adds COPY SESSION ERRORS JSON while retaining per-error JSON","No scheduler, mastery, 3,000-question bank, 15-question level, fixed 10-second clock, transition timing or calibrated gameplay layout changes are included; audio is deliberately left unchanged after the final interface audit","v3.14 standardizes the learner-facing grammar term as INFINITIVO SIN TO instead of base verb / bare infinitive throughout skill labels, lessons, Keys, diagnostics and new question metadata","KEY DIARY discovery #027 adds RATHER BE: MISMO → INFINITIVO SIN TO · OTRO → PASADO, with the contrast I’d rather GO / I’d rather YOU WENT","Internal category IDs and learning logic remain unchanged; this is a terminology/readability change plus one discovery card","v3.13 adds a fleeting Skill League label to every answer transition, using the exact same grammar-skill name on correct and wrong answers without changing any transition timing","Estimated Practice Left now appears on the level-results back cover as well as the dashboard","Statistics, League Study, My Coach and Error Lab now have an immediate DASHBOARD button at the top, and League Study is included explicitly in the screen router","v3.12 increases typography throughout dashboards, statistics, coach, league, review and campaign-planning views for easier reading; the calibrated game panel is deliberately untouched","Time estimates, daily-plan scenarios, Focus Time details, chart metadata and secondary labels are now substantially larger on mobile and desktop","v3.11 adds a stable DAILY PLAN: recommended minutes/day → estimated practice days, plus minimum, stretch and today-at-this-pace scenarios","The recommended daily minutes come from the existing adaptive Focus target, so weak skills/review load can raise the prescription and fatigue can lower it","Estimated practice days are now anchored to the recommended plan instead of changing all day as today’s accumulated minutes rise","v3.10 separates GRADUATION READINESS from LEARNING PROGRESS so the percentage is no longer mistaken for time completed","Estimated Practice Left is now derived from observed in-app progress per practice hour for learning progress, mastery and coverage; the slowest learning gate sets the hour estimate","Calendar/retention requirements remain separate from practice hours, and the estimate now shows its hour driver and a confidence range","The Campaign 2 forecast is now named ESTIMATED PRACTICE LEFT across the dashboard, My Coach and the coach export","Restored the Local Coach narrative after the v3.9 hours update so My Coach renders both the practice estimate and the longitudinal report","Estimated Practice Left now shows focused practice hours plus equivalent days at today's pace, directly on the main dashboard and in My Coach","The estimate separates practice-time remaining from mandatory calendar/retention time, with a modeled hour range and confidence label","v3.8.1 cache isolation remains active so Adaptive English cannot delete caches belonging to other apps on the same origin","Full audit/recalibration: Campaign 2 readiness now follows the real graduation gate instead of the older permissive handoff thresholds","Graduation now requires near-complete coverage, 85% global mastery, every skill at 70%+, 14 real days, enough spaced-review evidence, retention, stability and a modest automaticity/fluency signal before the final challenge","The practice estimate was recalibrated to the stricter graduation gates and uses the actual Learning Curve","KEY DIARY keeps the 25 base Keys and adds open-ended discovery cards; #026 is GOTYE, and cards now use Anki-style tap once to flip, tap again to advance","Core 3,000-question bank, scheduler, 15-question levels, fixed 10-second clock and STORAGE_KEY are unchanged"];
-function renderReleaseInfo(){const host=$("releaseInfo"),online=location.protocol.startsWith("http"),build=`${online?"ONLINE":"LOCAL"} BUILD · v${APP_VERSION} · BANK ${CAMPAIGN?.version||"—"}`;if(host)host.innerHTML=`<details class="release-info"><summary><b>Adaptive English v${APP_VERSION}</b><span>WHAT’S NEW</span></summary><ul>${RELEASE_NOTES.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></details>`;if($("buildVersion"))$("buildVersion").textContent=build;if($("endBuildVersion"))$("endBuildVersion").textContent=build;const meta=document.querySelector('meta[name="ae-version"]');if(meta)meta.setAttribute("content",APP_VERSION);document.title=`Adaptive English - Campaign 1 - v${APP_VERSION}`;}
+function renderReleaseInfo(){const host=$("releaseInfo"),online=location.protocol.startsWith("http"),build=`${online?"ONLINE":"LOCAL"} BUILD · v${APP_VERSION} · BANK ${CAMPAIGN?.version||"—"}`;if(host)host.innerHTML=`<details class="release-info"><summary><b>Adaptive Verbs · Català v${APP_VERSION}</b><span>WHAT’S NEW</span></summary><ul>${["v0.1.0 · Pilot: 180 canonical forms · 10 verbs × 3 paradigms × 6 persons","15 questions per level · fixed 6-second clock · AVG HITS /15 and TARGET retained","Verb League + Tense League · form/person/tense/error metadata in AI handoff","Recognition is active; Build and Production are reserved in the Campaign 1 data architecture"].map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></details>`;if($("buildVersion"))$("buildVersion").textContent=build;if($("endBuildVersion"))$("endBuildVersion").textContent=build;const meta=document.querySelector('meta[name="ae-version"]');if(meta)meta.setAttribute("content",APP_VERSION);document.title=`Adaptive Verbs · Català · Campaign 1 · v${APP_VERSION}`;}
 function renderStart(){
   ensureDailyKey();
   const st=overallStats(),sg=stageInfo(st.coverage),rb=ratingBand(st.rating),ai=aiValorationStats();
@@ -1055,10 +1068,10 @@ function renderStart(){
   $("startMastered").textContent=`${st.mastered}/${CAMPAIGN.skills.length}`;paintText("startMastered",st.mastered/CAMPAIGN.skills.length);
   $("startTotal").textContent=(state.totalAttempts||0).toLocaleString();$("startStudyTime").textContent=formatStudyTime(state.activeTrainingMs||0);const phraseStats=phraseExposureStats();$("startPhrasesDone").textContent=phraseStats.unique.toLocaleString();$("startRepeatedPhrases").textContent=phraseStats.repeatedUnique.toLocaleString();
   const peer=typicalLearnerStats(),spd=$("startPeerDelta");spd.textContent=peer.delta==null?"—":`${peer.delta>=0?"+":""}${peer.delta.toFixed(1)}`;spd.className=`peer-delta ${peer.delta==null||Math.abs(peer.delta)<2?"neutral":peer.delta>0?"good":"bad"}`;$("startPeerStatus").textContent=`${peer.label} · typical ${peer.typical.toFixed(1)} · range ${peer.healthyMin.toFixed(1)}–${peer.strongPace.toFixed(1)}`;
-  let status=`AE RATING ${pct(st.rating)} · ${rb.name} · ${sg.name} · ${Math.max(0,sg.to-sg.seen)} new exercises until the next stage.`;
-  if(st.coverage>=.999&&!st.eligible){const gate=campaign2Readiness();status=`All 3,000 exercises explored. GRADUATION GATE pending · ${gate.blockers[0]||"keep consolidating longitudinal evidence"}.`;}
-  if(st.eligible&&!state.completed)status="FINAL CHALLENGE READY · Campaign requirements achieved.";
-  if(state.completed)status="CAMPAIGN 1 COMPLETE · Free practice remains available, or load the next campaign later.";
+  let status=`VERB CONTROL ${pct(st.rating)} · ${rb.name} · ${sg.name} · ${Math.max(0,sg.to-sg.seen)} formes noves fins al següent tram.`;
+  if(st.coverage>=.999&&CAMPAIGN.bankStage!=="COMPLETE")status=`PILOT COBERT · ${BANK.length} formes vistes. La campanya continua oberta: aquest banc és només la primera fase.`;
+  if(CAMPAIGN.bankStage==="COMPLETE"&&st.eligible&&!state.completed)status="FINAL CHALLENGE READY · Campaign requirements achieved.";
+  if(state.completed)status="CAMPAIGN 1 COMPLETE · Domini verbal complet verificat.";
   $("campaignStatus").textContent=status;
   renderCampaign2Readiness();
   renderDailyKey();
@@ -1073,15 +1086,15 @@ async function showLevelIntro(finalMode,target){
   const el=missionOverlay(true),last=state.sessionHistory.filter(x=>x.mode==="training").slice(-1)[0];if(!el)return;
   el.className="mission-overlay intro";const rank=finalMode?14:valueLevel((target||0)/15);el.style.setProperty("--mission-accent",valueColor(rank/15));
   const lastDelta=last&&Number.isFinite(last.target)?last.correct-last.target:null,lastLine=last?`LAST ${last.correct}/15${lastDelta==null?"":` · ${lastDelta>=0?"+":""}${lastDelta.toFixed(1)} VS TARGET`}`:"FIRST LEVEL";
-  $("missionBody").innerHTML=`<div class="mission-eyebrow">${finalMode?"FINAL CHALLENGE":`LEVEL ${state.level}`}</div><div class="mission-title">${finalMode?"FINAL RUN":"TARGET"}</div><div class="mission-score" style="color:${finalMode?valueTextColor(13/15):valueTextColor((target||0)/15)}">${finalMode?"READY":`${target.toFixed(1)}<small>/15</small>`}</div><div class="mission-meta">${lastLine}</div><div class="mission-rules">15 QUESTIONS · 10s</div>`;
+  $("missionBody").innerHTML=`<div class="mission-eyebrow">${finalMode?"FINAL CHALLENGE":`LEVEL ${state.level}`}</div><div class="mission-title">${finalMode?"FINAL RUN":"TARGET"}</div><div class="mission-score" style="color:${finalMode?valueTextColor(13/15):valueTextColor((target||0)/15)}">${finalMode?"READY":`${target.toFixed(1)}<small>/15</small>`}</div><div class="mission-meta">${lastLine}</div><div class="mission-rules">${SESSION_SIZE} QUESTIONS · ${TIME_LIMIT}s</div>`;
   for(const n of [3,2,1]){$("missionCount").textContent=String(n);$("missionCount").classList.remove("pop");void $("missionCount").offsetWidth;$("missionCount").classList.add("pop");playCountdownStep(n);await wait(820);}
   $("missionCount").textContent="GO";tone(1318.5,.09,.022,"sine");await wait(320);missionOverlay(false);
 }
 function leagueFlashHtml(s){
   const moves=Object.entries(s.rankMoves||{}).map(([id,delta])=>({id,delta,name:skillLabel(id)})).filter(x=>x.delta).sort((a,b)=>Math.abs(b.delta)-Math.abs(a.delta));
-  if(!moves.length)return `<div class="league-flash"><div class="league-flash-title">SKILL LEAGUE · MATCHDAY</div><div class="league-steady">— NO POSITION CHANGES</div></div>`;
+  if(!moves.length)return `<div class="league-flash"><div class="league-flash-title">VERB LEAGUE · MATCHDAY</div><div class="league-steady">— NO POSITION CHANGES</div></div>`;
   const up=moves.filter(x=>x.delta>0).sort((a,b)=>b.delta-a.delta).slice(0,3),down=moves.filter(x=>x.delta<0).sort((a,b)=>a.delta-b.delta).slice(0,3),best=up[0],worst=down[0],row=(x,good)=>`<div class="league-flash-row ${good?"up":"down"}"><strong>${good?"▲":"▼"}${Math.abs(x.delta)}</strong><span>${escapeHtml(x.name)}</span></div>`,star=(x,good)=>x?`<div class="league-star ${good?"up":"down"}"><small>${good?"TOP RISER":"TOP FALLER"}</small><b>${good?"▲":"▼"}${Math.abs(x.delta)}</b><span>${escapeHtml(x.name)}</span></div>`:"";
-  return `<div class="league-flash"><div class="league-flash-title">SKILL LEAGUE · MATCHDAY</div><div class="league-stars">${star(best,true)}${star(worst,false)}</div><div class="league-flash-grid"><div>${up.map(x=>row(x,true)).join("")||'<div class="league-none">NO RISERS</div>'}</div><div>${down.map(x=>row(x,false)).join("")||'<div class="league-none">NO FALLERS</div>'}</div></div></div>`;
+  return `<div class="league-flash"><div class="league-flash-title">VERB LEAGUE · MATCHDAY</div><div class="league-stars">${star(best,true)}${star(worst,false)}</div><div class="league-flash-grid"><div>${up.map(x=>row(x,true)).join("")||'<div class="league-none">NO RISERS</div>'}</div><div>${down.map(x=>row(x,false)).join("")||'<div class="league-none">NO FALLERS</div>'}</div></div></div>`;
 }
 
 async function showLevelResolution(s,before){
@@ -1138,10 +1151,10 @@ function nextQuestion(){
   if(!current||!Array.isArray(current.display)||current.display.length!==4||!Number.isInteger(current.correctPos)||current.correctPos<0||current.correctPos>3){console.error("Skipping invalid question",current);session.index++;setTimeout(nextQuestion,0);return;}
   $("qIndex").textContent=session.index+1;$("qTotal").textContent="/ "+session.plan.length;
   const view=visibleCard(current);current.visibleQuestion=view.question;current.visibleOptions=view.options;current.visibleFocus=view.focus;current.visibleNames=view.names;
-  $("questionText").classList.remove("focus-active");$("questionText").textContent=view.question;
+  $("questionText").classList.remove("focus-active");renderVerbPrompt(current,view.question);
   const wrap=$("answers");wrap.innerHTML="";
   current.display.forEach((txt,i)=>{const b=document.createElement("button");b.className="answer";b.textContent=view.options[i];b.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse"){e.preventDefault();answer(i,false);}});b.addEventListener("click",()=>answer(i,false));wrap.appendChild(b);});
-  $("timerText").textContent="10.0";$("timer").classList.remove("urgent");renderSegments(10);startTimer();
+  $("timerText").textContent=TIME_LIMIT.toFixed(1);$("timer").classList.remove("urgent");renderSegments(TIME_LIMIT);startTimer();
 }
 function feedback(ok,type,sec,correct,appearance,patternAppearance,phraseCorrect=0,phraseWrong=0,cat=""){
   const f=$("feedback"),skill=skillLabel(cat);f.className="feedback "+(ok?"ok":"no");
@@ -1152,7 +1165,7 @@ function feedback(ok,type,sec,correct,appearance,patternAppearance,phraseCorrect
 function answer(pos,timeout=false){
   if(locked)return;locked=true;clearInterval(timerHandle);
   const sec=timeout?TIME_LIMIT:Math.max(.05,(TIME_LIMIT*1000-(deadline-performance.now()))/1000);
-  const ok=pos===current.correctPos&&!timeout,type=outcomeType(ok,sec,current.targetTime||3.6,timeout);
+  const ok=pos===current.correctPos&&!timeout,type=outcomeType(ok,sec,current.targetTime||3.6,timeout,current.retrievalMode||"RECOGNITION");
   const buttons=[...$("answers").children];
   buttons.forEach((b,i)=>{b.disabled=true;b.classList.remove("good","bad","dim");if(i===current.correctPos)b.classList.add("good");else b.classList.add("dim");});
   if(!ok&&pos>=0){buttons[pos].classList.remove("dim");buttons[pos].classList.add("bad");}
@@ -1161,7 +1174,8 @@ function answer(pos,timeout=false){
   const now=Date.now(),intervalDays=reviewIntervalDays(previousSeen,type);
   state.seen[current.fingerprint]={count:appearance,lastLevel:state.level,lastTs:now,lastCorrect:ok,lapses,intervalDays,nextDueTs:now+intervalDays*86400000};state.templateLast[current.templateId]=state.level;state.templateSeen[current.templateId]={count:patternAppearance,lastLevel:state.level,lastTs:now};
   const shownQuestion=current.visibleQuestion||current.q,shownOptions=current.visibleOptions||current.display,load=promptLoadMeta(shownQuestion);
-  const rec={level:state.level,qid:current.id,cat:current.cat,skill:current.skill,templateId:current.templateId,domain:current.domain,correct:ok,ms:Math.round(sec*1000),type,speedScore,occurrence:appearance,patternOccurrence:patternAppearance,review:!!previousSeen,gap:previousSeen?state.level-previousSeen.lastLevel:null,ts:Date.now(),question:shownQuestion,originalQuestion:current.q,userAnswer:pos>=0?shownOptions[pos]:"No answer",correctAnswer:shownOptions[current.correctPos],rule:current.rule,promptWords:load.words,promptChars:load.chars,readingLoad:load.band,targetTimeSec:current.targetTime||3.6,timeLimitSec:TIME_LIMIT,sessionMode:session.mode};
+  const errorType=timeout?"TIMEOUT":ok?null:(current.displayMeta?.[pos]?.errorType||"OTHER");
+  const rec={formId:current.formId,lemma:current.lemma,tenseId:current.tenseId,tenseLabel:current.tenseLabel,mood:current.mood,tense:current.tense,personCode:current.personCode,personLabel:current.personLabel,retrievalMode:current.retrievalMode||"RECOGNITION",errorType,selectedMeta:pos>=0?(current.displayMeta?.[pos]||null):null,level:state.level,qid:current.id,cat:current.cat,skill:current.skill,templateId:current.templateId,domain:current.domain,correct:ok,ms:Math.round(sec*1000),type,speedScore,occurrence:appearance,patternOccurrence:patternAppearance,review:!!previousSeen,gap:previousSeen?state.level-previousSeen.lastLevel:null,ts:Date.now(),question:shownQuestion,originalQuestion:current.q,userAnswer:pos>=0?shownOptions[pos]:"No answer",correctAnswer:shownOptions[current.correctPos],rule:current.rule,promptWords:load.words,promptChars:load.chars,readingLoad:load.band,targetTimeSec:current.targetTime||3.6,timeLimitSec:TIME_LIMIT,sessionMode:session.mode};
   if(!ok){hideCorrectReveal();showMemoryEcho(current.cat,rec.correctAnswer);}else hideCorrectReveal();
   try{flashGrammarFocus(shownQuestion,rec.correctAnswer,current.visibleFocus||current.focus||[]);}catch(e){console.error("Grammar focus flash failed",e);}
   state.history.push(rec);state.history=state.history.slice(-12000);state.activeTrainingMs=(state.activeTrainingMs||0)+rec.ms;state.totalAttempts++;session.records.push(rec);session.times.push(sec);if(ok)session.correct++;if(type==="automatic")session.automatic++;
@@ -1181,7 +1195,7 @@ async function finishSession(){
   state.personalBestFluency=Math.max(state.personalBestFluency||0,st.rating);
   if(session.mode==="final"){
     state.finalAttempts=(state.finalAttempts||0)+1;
-    if(accuracy>=.85&&avgMs<=6000)state.completed=true;
+    if(CAMPAIGN.bankStage==="COMPLETE"&&accuracy>=.85&&avgMs<=6000)state.completed=true;
   }
   save();renderEnd(snap,before);autoCopySessionHandoff(snap).catch(()=>setEndHandoffStatus(false,true));await showLevelResolution(snap,before);showScreen("endScreen");
 }
@@ -1198,7 +1212,7 @@ function renderEnd(s,before){
   const targetHit=s.target==null?null:s.correct>=s.target,targetDelta=s.target==null?null:s.correct-s.target;
   $("endScore").textContent=`${s.correct}/${s.total} · ${pct(s.accuracy)}%`;$("endScore").style.color=valueTextColor(s.accuracy);
   const targetEl=$("endTarget");if(targetEl){targetEl.className=`target-result ${targetHit==null?"hidden":targetHit?"hit":"miss"}`;targetEl.innerHTML=targetHit==null?"":`<span>TARGET ${s.target.toFixed(1)}</span><b>${targetDelta>=0?"+":""}${targetDelta.toFixed(1)}</b><small>${targetHit?"TARGET BEATEN":"TARGET MISSED"}</small>`;}
-  $("endSub").textContent=`AE RATING ${pct(st.rating)} · ${rb.name} · ${sg.name} · ${Object.keys(state.seen).length.toLocaleString()}/${BANK.length.toLocaleString()} explored`;
+  $("endSub").textContent=`VERB CONTROL ${pct(st.rating)} · ${rb.name} · ${sg.name} · ${Object.keys(state.seen).length.toLocaleString()}/${BANK.length.toLocaleString()} formes vistes`;
   $("eAvg").textContent=fmtSec(s.avgMs);$("eAuto").textContent=pct(s.automatic)+"%";paintText("eAuto",s.automatic);$("eFluency").textContent=pct(st.rating);paintText("eFluency",st.rating);
   $("eCoverage").textContent=pct(st.coverage)+"%";paintText("eCoverage",st.coverage);$("eMastery").textContent=pct(st.mastery)+"%";paintText("eMastery",st.mastery);$("eMastered").textContent=`${st.mastered}/${CAMPAIGN.skills.length}`;paintText("eMastered",st.mastered/CAMPAIGN.skills.length);
   $("dAcc").innerHTML=before?deltaText((s.accuracy-before.accuracy)*100,true," pts"):'<span class="delta neutral">First level</span>';
@@ -1226,14 +1240,14 @@ function renderEnd(s,before){
   $("errorsCount").textContent=wrong.length?`${wrong.length} ${wrong.length===1?"error":"errors"} in Level ${s.level} · ${errorGroups.length} ${errorGroups.length===1?"skill":"skills"}`:`No errors in Level ${s.level}`;
   if(wrong.length)renderErrorLab(wrong,"errorsFull");else $("errorsFull").innerHTML='<p class="meta">No errors in this level.</p>';
   const nextLabel=state.completed?"KEEP TRAINING":`NEXT LEVEL · ${state.level}`;$("continueBtn").textContent=nextLabel;$("topContinueBtn").textContent=nextLabel;
-  const finalHidden=!(st.eligible&&!state.completed);$("finalBtn").classList.toggle("hidden",finalHidden);$("topFinalBtn").classList.toggle("hidden",finalHidden);
+  const finalHidden=!(CAMPAIGN.bankStage==="COMPLETE"&&st.eligible&&!state.completed);$("finalBtn").classList.toggle("hidden",finalHidden);$("topFinalBtn").classList.toggle("hidden",finalHidden);
   if(s.mode==="final"&&!state.completed)$("endSub").textContent=`Final challenge not passed yet · ${pct(s.accuracy)}% · ${fmtSec(s.avgMs)}`;
   if(state.completed)$("endSub").textContent="CAMPAIGN 1 COMPLETE";
 }
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
 function exportProgress(){
   const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`adaptive-english-progress-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href);
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`adaptive-verbs-catala-progress-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href);
 }
 function importProgress(file){
   const r=new FileReader();r.onload=()=>{try{const s=JSON.parse(r.result);if(!validProgressState(s))throw Error("Invalid progress schema");state=normaliseProgressState(s);save();renderStart();alert("Progress imported.");}catch(e){console.error("Progress import rejected",e);alert("This progress file is not valid for Campaign 1.");}};r.readAsText(file);
@@ -1245,7 +1259,7 @@ function resetProgress(){
 function validQuestion(q){
   const opts=q?.a;
   if(!Array.isArray(opts)||opts.length!==4||!Number.isInteger(q.c)||q.c<0||q.c>=opts.length)return false;
-  const norm=opts.map(x=>String(x).trim().toLocaleLowerCase("en"));
+  const norm=opts.map(x=>String(x).trim().toLocaleLowerCase("ca"));
   return new Set(norm).size===norm.length;
 }
 
@@ -1256,9 +1270,9 @@ async function boot(){
   CAMPAIGN.questions=CAMPAIGN.questions.filter(validQuestion);
   for(const skill of CAMPAIGN.skills)skill.name=learningTerminology(skill.name);
   for(const q of CAMPAIGN.questions){q.skill=learningTerminology(q.skill);q.rule=learningTerminology(q.rule);q.trigger=learningTerminology(q.trigger);}
-  if(CAMPAIGN.questions.length!==before)console.warn(`Adaptive English skipped ${before-CAMPAIGN.questions.length} invalid question(s) with duplicate/broken options.`);
+  if(CAMPAIGN.questions.length!==before)console.warn(`Adaptive Verbs · Català skipped ${before-CAMPAIGN.questions.length} invalid question(s) with duplicate/broken options.`);
   BANK=CAMPAIGN.questions;state=loadState();startFocusTracking();save();
-  const seg=$("segments");for(let i=0;i<10;i++){const d=document.createElement("div");d.className="seg";seg.appendChild(d);}
+  const seg=$("segments");for(let i=0;i<TIME_LIMIT;i++){const d=document.createElement("div");d.className="seg";seg.appendChild(d);}
   $("startBtn").onclick=async()=>{await ensureAudio();await startSession(false);};
   $("statsBtn").onclick=()=>{renderStatsScreen();showScreen("statsScreen");};
   $("scoreExpandBtn").onclick=()=>{const rows=state.sessionHistory.filter(x=>x.mode==="training");$("scoreExpandedChart").innerHTML=sessionScoreChart(rows,true);$("scoreModal").classList.remove("hidden");};
@@ -1284,4 +1298,4 @@ async function boot(){
   $("errorsBackBtn").onclick=()=>showScreen("endScreen");
   renderStart();showScreen("startScreen");
 }
-boot().catch(err=>{console.error(err);document.body.innerHTML='<div style="padding:30px;color:white;font-family:system-ui"><h1>Adaptive English</h1><p>Could not load Campaign 1.</p></div>';});
+boot().catch(err=>{console.error(err);document.body.innerHTML='<div style="padding:30px;color:white;font-family:system-ui"><h1>Adaptive Verbs · Català</h1><p>No s’ha pogut carregar Campaign 1.</p></div>';});
