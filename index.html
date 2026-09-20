@@ -499,8 +499,8 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 #questionText .verb-prompt{font-size:clamp(39px,11vw,62px)}
 #questionText .tense-prompt{font-size:clamp(24px,7.1vw,37px);padding:8px 15px}
 #questionText .person-prompt{font-size:clamp(21px,6vw,30px)}
-#answers .answer{min-height:144px;padding:18px 14px;font-size:clamp(30px,6.9vw,43px);line-height:1.055}
-@media(max-width:520px){#questionText .verb-prompt{font-size:clamp(37px,11.2vw,53px)}#questionText .tense-prompt{font-size:clamp(24px,7.2vw,32px);padding:8px 12px}#questionText .person-prompt{font-size:clamp(21px,6.1vw,28px)}#answers .answer{min-height:128px;padding:16px 10px;font-size:clamp(27px,7.5vw,37px);line-height:1.05}}
+#answers .answer{min-height:144px;padding:18px 14px;font-size:clamp(36px,8.4vw,52px);line-height:1.055}
+@media(max-width:520px){#questionText .verb-prompt{font-size:clamp(37px,11.2vw,53px)}#questionText .tense-prompt{font-size:clamp(24px,7.2vw,32px);padding:8px 12px}#questionText .person-prompt{font-size:clamp(21px,6.1vw,28px)}#answers .answer{min-height:128px;padding:16px 10px;font-size:clamp(33px,9.2vw,45px);line-height:1.05}}
 </style>
 </head>
 <body>
@@ -684,7 +684,7 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   let aeReloading=false;
   navigator.serviceWorker.addEventListener('controllerchange',()=>{if(aeReloading)return;aeReloading=true;location.reload();});
-  navigator.serviceWorker.register('./service-worker.js?v=0.3.1',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+  navigator.serviceWorker.register('./service-worker.js?v=0.3.2',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
 }
 </script>
 <script src="https://adrianxds-ads.github.io/adrian-core/components/hub-nav.js?v=6"></script>
