@@ -59,8 +59,12 @@ expected = {
 
 errors = []
 questions = campaign.get("questions", [])
-if len(questions) != 180:
-    errors.append(f"question_count={len(questions)} expected=180")
+if len(questions) != 12360:
+    errors.append(f"question_count={len(questions)} expected=12360")
+if len(campaign.get("skills", [])) != 120:
+    errors.append(f"skill_count={len(campaign.get('skills', []))} expected=120")
+if len({q.get("tenseId") for q in questions}) != 19:
+    errors.append(f"paradigm_count={len({q.get('tenseId') for q in questions})} expected=19")
 if len({q.get("formId") for q in questions}) != len(questions):
     errors.append("duplicate formId")
 if len({q.get("id") for q in questions}) != len(questions):
@@ -91,6 +95,17 @@ for q in questions:
     missing = sorted(required - set(q))
     if missing:
         errors.append(f"missing fields {q.get('id')}: {missing}")
+    opts = q.get("a") or []
+    accepted = set(q.get("acceptedForms") or [q.get("canonicalForm")])
+    if len(opts) != 4 or len(set(opts)) != 4:
+        errors.append(f"bad options {q.get('formId')}: {opts}")
+    elif opts[q.get("c", -1)] != q.get("canonicalForm"):
+        errors.append(f"correct option mismatch {q.get('formId')}")
+    if q.get("canonicalForm") not in accepted:
+        errors.append(f"canonical not accepted {q.get('formId')}")
+    for i,opt in enumerate(opts):
+        if i != q.get("c") and opt in accepted:
+            errors.append(f"accepted variant used as distractor {q.get('formId')}: {opt}")
 
 if errors:
     print("AUDIT FAILED")
@@ -98,7 +113,8 @@ if errors:
         print("-", error)
     raise SystemExit(1)
 
-print("AUDIT OK")
-print(f"{len(questions)} canonical forms validated")
-print("10 verbs × 3 paradigms × 6 persons")
-print("All questions have 4 unique options and aligned metadata")
+print("MASTER AUDIT OK")
+print(f"{len(questions)} canonical slots validated")
+print("120 fixed verbs · 19 paradigms · 3 automatic scheduling tiers")
+print("Original 180 pilot forms preserved exactly")
+print("All questions have 4 unique options; accepted variants are never distractors")

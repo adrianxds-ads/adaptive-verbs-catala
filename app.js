@@ -1,6 +1,6 @@
 
 const INITIAL_PRIORS = {};
-const APP_VERSION = "0.2.0";
+const APP_VERSION = "0.3.0";
 const STORAGE_KEY = "adaptive_verbs_catala_campaign1_v1";
 const GLOBAL_LEVEL_KEY = "adaptive_verbs_catala_global_level_v1";
 const SESSION_SIZE = 15;
@@ -251,7 +251,7 @@ function campaign2Readiness(){
   const evidence=clamp((state.totalAttempts||0)/4500),curve=clamp((learning.current??st.mastery*100)/100),minSkillScore=clamp(st.minSkill/.70),retentionScore=g.reviewCount?clamp(g.retentionAccuracy/.72):0,stabilityScore=g.recentSessions?clamp(g.stableAccuracy/.75):0,autoScore=clamp(st.auto/.12),calendarScore=clamp(g.spanDays/14);
   const score=clamp(.15*st.coverage+.19*st.mastery+.09*breadth+.07*strong+.10*minSkillScore+.14*retentionScore+.08*stabilityScore+.05*autoScore+.05*calendarScore+.03*evidence+.05*curve);
   const ready=g.eligible&&score>=.82;
-  const stage=ready?"Pilot evidence complete":score>=.72?"Late consolidation":score>=.55?"Building retention evidence":"Building foundation";
+  const stage=ready?"Campaign evidence complete":score>=.72?"Late consolidation":score>=.55?"Building retention evidence":"Building foundation";
   const blockers=[];
   if(!g.gates.coverage)blockers.push(`${Math.max(0,Math.ceil(CAMPAIGN.questions.length*.999)-Object.keys(state.seen).length).toLocaleString()} more unique questions`);
   if(!g.gates.mastery)blockers.push(`mastery ${pct(st.mastery)}% → 85%`);
@@ -266,7 +266,7 @@ function campaign2Readiness(){
 }
 function campaign2Brief(){
   const r=campaign2Readiness(),st=overallStats();
-  return `Adaptive Verbs · Català · Campaign 1 diagnostic. Use my exported GLOBAL JSON as the primary longitudinal source. This is one continuous campaign: do not create Campaign 2. Current pilot: ${BANK.length} canonical forms, 15 questions per level, split timing: ${CUE_TIME.toFixed(1)}s cue-reading phase with answers hidden, then ${TIME_LIMIT.toFixed(1)}s response window. Current evidence: readiness ${pct(r.score)}%, coverage ${pct(st.coverage)}%, mastery ${pct(st.mastery)}%, weakest verb ${pct(st.minSkill)}%, review retention ${pct(r.graduation.retentionAccuracy)}% across ${r.graduation.reviewCount} spaced-review answers, automatic ${pct(st.auto)}%, 8-level stability ${pct(r.graduation.stableAccuracy)}%, real evidence span ${r.graduation.spanDays.toFixed(1)} days, Key Diary ${st.keysUnlocked}/${baseKeyCount()}. Analyse verb, tense/mood, person, stem, ending and orthographic errors. The pilot bank is not campaign completion unless bankStage is COMPLETE.`;
+  return `Adaptive Verbs · Català · Campaign 1 diagnostic. Use my exported GLOBAL JSON as the primary longitudinal source. This is one continuous campaign with a fixed master bank: ${BANK.length} canonical slots across ${CAMPAIGN.skills.length} verbs and ${new Set(BANK.map(q=>q.tenseId)).size} paradigms; no manual content expansion is required. Current active scheduling tier: ${activeBankTier()} of 3 (${activeTrainingBank().length} eligible slots). There are 15 questions per level, split timing: ${CUE_TIME.toFixed(1)}s cue-reading phase with answers hidden, then ${TIME_LIMIT.toFixed(1)}s response window. Current evidence: readiness ${pct(r.score)}%, coverage ${pct(st.coverage)}%, mastery ${pct(st.mastery)}%, weakest verb ${pct(st.minSkill)}%, review retention ${pct(r.graduation.retentionAccuracy)}% across ${r.graduation.reviewCount} spaced-review answers, automatic ${pct(st.auto)}%, 8-level stability ${pct(r.graduation.stableAccuracy)}%, real evidence span ${r.graduation.spanDays.toFixed(1)} days, Key Diary ${st.keysUnlocked}/${baseKeyCount()}. Analyse verb, tense/mood, person, stem, ending and orthographic errors. The master bank is fixed; progression should happen through scheduling, retrieval mode and spaced evidence rather than later content additions.`;
 }
 function stageInfo(coverage){
   const seen=Object.keys(state.seen).length,total=Math.max(1,BANK.length),step=Math.max(1,Math.ceil(total/6));
@@ -403,10 +403,12 @@ function chooseOne(pool,chosen,sessionCats,sessionTemplates,mode,allowedCats=nul
   cand.sort((a,b)=>qScore(b,sessionCats,sessionTemplates,mode)-qScore(a,sessionCats,sessionTemplates,mode));
   return cand[Math.floor(Math.random()*Math.min(5,cand.length))];
 }
+function activeBankTier(){const u=CAMPAIGN?.bankDefinition?.tierUnlock||{};if(state.level>=Number(u.tier3Level||35))return 3;if(state.level>=Number(u.tier2Level||15))return 2;return 1;}
+function activeTrainingBank(){const tier=activeBankTier();return BANK.filter(q=>(Number(q.tier)||1)<=tier);}
 function buildTrainingPlan(){
-  const chosen=[],cats={},temps={};
+  const chosen=[],cats={},temps={},pool=activeTrainingBank();
   const addQ=q=>{if(!q)return false;chosen.push(q);cats[q.cat]=(cats[q.cat]||0)+1;temps[q.templateId]=(temps[q.templateId]||0)+1;return true;};
-  const newPool=BANK.filter(q=>!seenInfo(q)),reviewPool=BANK.filter(q=>!!seenInfo(q));
+  const newPool=pool.filter(q=>!seenInfo(q)),reviewPool=pool.filter(q=>!!seenInfo(q));
   const skills=CAMPAIGN.skills.map(s=>({id:s.id,m:state.metrics[s.id],priority:catPriority(s.id)}));
 
   // Deliberate interleaving: a weak pattern can never swallow the session.
@@ -418,7 +420,7 @@ function buildTrainingPlan(){
   for(let round=0;round<2&&focusSlots>0;round++){
     for(const cat of focusCats){
       if(focusSlots<=0)break;
-      const q=chooseOne(newPool.length?newPool:BANK,chosen,cats,temps,"focus",new Set([cat])) || chooseOne(BANK,chosen,cats,temps,"focus",new Set([cat]));
+      const q=chooseOne(newPool.length?newPool:pool,chosen,cats,temps,"focus",new Set([cat])) || chooseOne(pool,chosen,cats,temps,"focus",new Set([cat]));
       if(addQ(q))focusSlots--;
     }
   }
@@ -450,11 +452,11 @@ function buildTrainingPlan(){
     if(!q)break;addQ(q);reviewSlots--;
   }
 
-  const wild=chooseOne(newPool.length?newPool:BANK,chosen,cats,temps,"wild");
+  const wild=chooseOne(newPool.length?newPool:pool,chosen,cats,temps,"wild");
   addQ(wild);
 
   while(chosen.length<SESSION_SIZE){
-    const q=chooseOne(BANK,chosen,cats,temps,"explore");
+    const q=chooseOne(pool,chosen,cats,temps,"explore");
     if(!q)break;addQ(q);
   }
 
@@ -485,7 +487,7 @@ function shuffleOptions(q){
   let wi=0;for(let i=0;i<4;i++)arr.push(i===targetPos?correct:wrong[wi++]);
   return {...q,display:arr.map(x=>x.x),displayMeta:arr.map(x=>x.meta),correctPos:targetPos};
 }
-function currentStageText(){const s=stageInfo(overallStats().coverage);return `Stage ${s.index+1}/6 · ${s.name}`;}
+function currentStageText(){const s=stageInfo(overallStats().coverage);return `TIER ${activeBankTier()}/3 · Stage ${s.index+1}/6 · ${s.name}`;}
 function deltaText(value,goodUp=true,suffix=""){
   if(value==null||Number.isNaN(value))return '<span class="delta neutral">—</span>';
   const good=goodUp?value>0:value<0,bad=goodUp?value<0:value>0,arrow=value>0?"↑":value<0?"↓":"→",color=semanticDeltaColor(value,goodUp);
@@ -622,7 +624,7 @@ const AI_ANALYSIS_CONTRACT={
   errors:"Use formId, verb, tense/mood, person and errorType. Distinguish PERSON_CONFUSION, TENSE_CONFUSION, MOOD_CONFUSION, STEM_ERROR, ACCENT_ERROR, TIMEOUT and OTHER.",
   discoveryMethod:"Prefer pattern discovery: repeated error → contrast → short Key → verify on later spaced questions. Do not front-load rules.",
   orthography:"Accents and diaereses are part of the answer. Treat missing or wrong diacritics as real orthographic errors.",
-  timer:"Timing is split during the pilot: a fixed 2.2-second cue-reading phase with answers hidden, followed by a fixed 5.0-second response window. Response-time metrics start only when answers appear. Do not recommend changing either phase without substantial evidence.",
+  timer:"Timing is split across Campaign 1: a fixed 2.2-second cue-reading phase with answers hidden, followed by a fixed 5.0-second response window. Response-time metrics start only when answers appear. Do not recommend changing either phase without substantial evidence.",
   retention:"Use real calendar study span and due-review count when judging consolidation. Same-day recognition is not proof of retention.",
   scope:"This app teaches Catalan verb forms only. Do not expand recommendations into general vocabulary, reading comprehension or unrelated grammar."
 };
@@ -885,14 +887,14 @@ function renderCampaign2Readiness(){
     renderPracticeEstimateMini("campaign2PracticeEstimate",estimate);
     $("campaign2Copy").classList.toggle("hidden",!r.ready);box.classList.toggle("ready",r.ready);
   }
-  const end=$("campaign2End");if(end){const show=r.ready||r.score>=.60;end.classList.toggle("hidden",!show);if(show)end.textContent=r.ready?`PILOT EVIDENCE GATE ACHIEVED · Readiness ${score}% · Campaign 1 remains open until bankStage is COMPLETE.`:`PILOT CONSOLIDATION · Readiness ${score}% · Keep building spaced evidence.`;}
+  const end=$("campaign2End");if(end){const show=r.ready||r.score>=.60;end.classList.toggle("hidden",!show);if(show)end.textContent=r.ready?`CAMPAIGN EVIDENCE GATE ACHIEVED · Readiness ${score}% · Master bank already complete.`:`CAMPAIGN CONSOLIDATION · Readiness ${score}% · Keep building spaced evidence.`;}
 }
 async function copyCampaign2Brief(){
   const text=campaign2Brief();
   try{await navigator.clipboard.writeText(text);alert("Campaign 1 diagnostic copied. Export your progress too and send both to ChatGPT.");}
   catch(e){const t=document.createElement("textarea");t.value=text;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove();alert("Campaign 1 diagnostic copied. Export your progress too and send both to ChatGPT.");}
 }
-function baseKeyCount(){return CAMPAIGN?.skills?.length||10;}
+function baseKeyCount(){return Math.max(1,Object.keys(window.AE_KEYS||{}).length||10);}
 function localDateKey(ts=Date.now()){const d=new Date(ts),p=n=>String(n).padStart(2,"0");return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;}
 function calendarDayNumber(dateKey){const [y,m,d]=String(dateKey).split("-").map(Number);return Math.floor(Date.UTC(y,m-1,d)/86400000);}
 function addCalendarDays(dateKey,days){const [y,m,d]=String(dateKey).split("-").map(Number),dt=new Date(Date.UTC(y,m-1,d)+days*86400000),p=n=>String(n).padStart(2,"0");return `${dt.getUTCFullYear()}-${p(dt.getUTCMonth()+1)}-${p(dt.getUTCDate())}`;}
@@ -955,8 +957,8 @@ function renderGrowthTree(){
   host.innerHTML=`<div class="growth-tree-canvas" data-tree-stage="${stage}"><svg viewBox="0 0 420 300" role="img" aria-label="Practice tree, growth stage ${stage} of 200"><defs><linearGradient id="treeTrunk" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#5d3827"/><stop offset=".55" stop-color="#76503a"/><stop offset="1" stop-color="#957258"/></linearGradient></defs><ellipse class="tree-ground" cx="210" cy="282" rx="78" ry="7"/> <g class="tree-branches" fill="none" stroke="url(#treeTrunk)" stroke-linecap="round" stroke-linejoin="round">${branch}</g><g class="tree-leaves">${leaf}</g></svg></div><div class="growth-tree-count"><b>${level.toLocaleString()}</b><span>LEVEL</span></div>`;
 }
 
-const RELEASE_NOTES=["v0.2.0 · split cue/response timing","2.2s cue-reading phase with answers hidden","5.0s response window measured separately","180 pilot forms retained while the learning engine expands"];
-function renderReleaseInfo(){const host=$("releaseInfo"),online=location.protocol.startsWith("http"),build=`${online?"ONLINE":"LOCAL"} BUILD · v${APP_VERSION} · BANK ${CAMPAIGN?.version||"—"}`;if(host)host.innerHTML=`<details class="release-info"><summary><b>Adaptive Verbs · Català v${APP_VERSION}</b><span>WHAT’S NEW</span></summary><ul>${["v0.2.0 · lectura y respuesta separadas","2.2 s para leer verbo + tiempo/modo + persona con respuestas ocultas","5.0 s de respuesta; las métricas empiezan cuando aparecen las opciones","Recognition sigue activo; Build y Production serán la siguiente expansión pedagógica"].map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></details>`;if($("buildVersion"))$("buildVersion").textContent=build;if($("endBuildVersion"))$("endBuildVersion").textContent=build;const meta=document.querySelector('meta[name="ae-version"]');if(meta)meta.setAttribute("content",APP_VERSION);document.title=`Adaptive Verbs · Català · Campaign 1 · v${APP_VERSION}`;}
+const RELEASE_NOTES=["v0.3.0 · fixed master bank","120 verbs · 12,360 canonical slots · 19 paradigms","Tier 1 functional core active now; Tiers 2–3 unlock automatically","Original 180 audited pilot forms preserved exactly"];
+function renderReleaseInfo(){const host=$("releaseInfo"),online=location.protocol.startsWith("http"),build=`${online?"ONLINE":"LOCAL"} BUILD · v${APP_VERSION} · BANK ${CAMPAIGN?.version||"—"}`;if(host)host.innerHTML=`<details class="release-info"><summary><b>Adaptive Verbs · Català v${APP_VERSION}</b><span>WHAT’S NEW</span></summary><ul>${["v0.3.0 · banco maestro cerrado desde el principio","120 verbos · 12.360 slots canónicos · 19 paradigmas","Tier 1 funcional activo; Tier 2 en L15 y Tier 3 en L35 automáticamente","Tus 180 formas anteriores y todo el progreso se conservan"].map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></details>`;if($("buildVersion"))$("buildVersion").textContent=build;if($("endBuildVersion"))$("endBuildVersion").textContent=build;const meta=document.querySelector('meta[name="ae-version"]');if(meta)meta.setAttribute("content",APP_VERSION);document.title=`Adaptive Verbs · Català · Campaign 1 · v${APP_VERSION}`;}
 function renderStart(){
   ensureDailyKey();
   const st=overallStats(),sg=stageInfo(st.coverage),rb=ratingBand(st.rating),ai=aiValorationStats();
