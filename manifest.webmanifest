@@ -1,0 +1,16 @@
+{
+  "name": "Adaptive English · Campaign 1",
+  "short_name": "Adaptive English",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#10271d",
+  "theme_color": "#10271d",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
