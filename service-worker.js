@@ -1,5 +1,5 @@
 const CACHE_PREFIX='avc-campaign1-';
-const CACHE='avc-campaign1-v0.3.3';
+const CACHE='avc-campaign1-v0.3.4';
 const ASSETS=['./','./index.html','./adrian-visual-system.js','./lessons.js','./keys.js','./error-coach.js','./app.js','./campaign-01.json','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));self.skipWaiting();});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith(CACHE_PREFIX)&&k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim();});

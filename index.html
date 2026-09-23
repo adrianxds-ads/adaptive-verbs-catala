@@ -502,6 +502,13 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 #answers .answer{min-height:154px;padding:18px 14px;font-size:clamp(42px,10.5vw,60px);line-height:1.01}
 @media(max-width:520px){#questionText .verb-prompt{font-size:clamp(37px,11.2vw,53px)}#questionText .tense-prompt{font-size:clamp(24px,7.2vw,32px);padding:8px 12px}#questionText .person-prompt{font-size:clamp(21px,6.1vw,28px)}#answers .answer{min-height:148px;padding:16px 9px;font-size:clamp(44px,13vw,58px);line-height:1.0}}
 </style>
+<style id="avc-answer-fit-v1">
+/* Keep short forms bold and large, but fit longer Catalan conjugations on one line. */
+#answers .answer.answer-long{font-size:clamp(32px,9.2vw,42px);line-height:1;letter-spacing:-.025em;white-space:nowrap;text-wrap:nowrap;overflow-wrap:normal;word-break:normal}
+#answers .answer.answer-xlong{font-size:clamp(27px,7.8vw,36px);line-height:1;letter-spacing:-.03em;white-space:nowrap;text-wrap:nowrap;overflow-wrap:normal;word-break:normal}
+#answers .answer.answer-xxlong{font-size:clamp(23px,6.6vw,31px);line-height:1;letter-spacing:-.035em;white-space:nowrap;text-wrap:nowrap;overflow-wrap:normal;word-break:normal}
+@media(max-width:360px){#answers .answer.answer-long{font-size:clamp(29px,8.8vw,36px)}#answers .answer.answer-xlong{font-size:clamp(25px,7.4vw,32px)}#answers .answer.answer-xxlong{font-size:clamp(21px,6.2vw,28px)}}
+</style>
 </head>
 <body>
 <div class="app">

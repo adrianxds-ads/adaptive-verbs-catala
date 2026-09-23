@@ -1064,7 +1064,7 @@ function nextQuestion(){
   const view=visibleCard(current);current.visibleQuestion=view.question;current.visibleOptions=view.options;current.visibleFocus=view.focus;current.visibleNames=view.names;
   $("questionText").classList.remove("focus-active");renderVerbPrompt(current,view.question);
   const wrap=$("answers");wrap.innerHTML="";wrap.classList.add("cue-phase");wrap.setAttribute("aria-hidden","true");
-  current.display.forEach((txt,i)=>{const b=document.createElement("button");b.className="answer";b.textContent=view.options[i];b.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse"){e.preventDefault();answer(i,false);}});b.addEventListener("click",()=>answer(i,false));wrap.appendChild(b);});
+  current.display.forEach((txt,i)=>{const b=document.createElement("button"),optionText=String(view.options[i]??""),glyphs=[...optionText.replace(/\s+/g,"")].length;b.className="answer"+(glyphs>=11?" answer-xxlong":glyphs>=9?" answer-xlong":glyphs>=7?" answer-long":"");b.textContent=optionText;b.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse"){e.preventDefault();answer(i,false);}});b.addEventListener("click",()=>answer(i,false));wrap.appendChild(b);});
   $("timerText").textContent="LEE";$("timer").classList.remove("urgent");$("timer").classList.add("cue-reading");$("timer").style.setProperty("--timer-cut","100%");renderSegments(0);
   cueHandle=setTimeout(()=>{if(!session||locked!==true)return;cueHandle=null;wrap.classList.remove("cue-phase");wrap.setAttribute("aria-hidden","false");$("timer").classList.remove("cue-reading");$("timerText").textContent=TIME_LIMIT.toFixed(1);renderSegments(TIME_LIMIT);locked=false;startTimer();},CUE_TIME*1000);
 }
