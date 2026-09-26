@@ -1,10 +1,13 @@
 
 const INITIAL_PRIORS = {};
-const APP_VERSION = "0.4.0";
+const APP_VERSION = "0.5.0";
 const STORAGE_KEY = "adaptive_verbs_catala_campaign1_v1";
 const GLOBAL_LEVEL_KEY = "adaptive_verbs_catala_global_level_v1";
 const SESSION_SIZE = 15;
-const CUE_TIME = 2.2;
+const VERB_CUE_TIME = 1.6;
+const TENSE_CUE_TIME = 1.7;
+const PERSON_CUE_TIME = 1.5;
+const CUE_TIME = VERB_CUE_TIME + TENSE_CUE_TIME + PERSON_CUE_TIME;
 const TIME_LIMIT = 5;
 const HISTORY_LIMIT = 6000;
 const SESSION_HISTORY_LIMIT = 1000;
@@ -19,6 +22,11 @@ let audioCtx=null, soundOn=true, lastTickShown=TIME_LIMIT+1, lastUrgentBeat=-1;
 let focusLastActivityTs=Date.now(),focusLastTickTs=Date.now(),focusSaveMs=0,focusTimerHandle=null;
 
 const $=id=>document.getElementById(id);
+function shuffledAnswerColorClasses(){
+  const a=["option-c1","option-c2","option-c3","option-c4"];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
 function applyVisualSystemTokens(){const r=document.documentElement;AVS_RANKS.forEach((x,i)=>{r.style.setProperty(`--rank-${i+1}`,x.color);r.style.setProperty(`--rank-${i+1}-surface`,x.surface||x.color);r.style.setProperty(`--rank-${i+1}-band`,x.band||x.color);r.style.setProperty(`--rank-${i+1}-text`,x.text||x.color);});r.style.setProperty("--reward-gold",COLOR_BANDS_15[14]);r.style.setProperty("--reward-gold-text",AVS_TEXT_BANDS_15[14]);r.style.setProperty("--elite-violet",COLOR_BANDS_15[13]);r.style.setProperty("--negative-wine",COLOR_BANDS_15[3]);}
 function storedGlobalLevel(){try{return Math.max(1,Math.floor(Number(localStorage.getItem(GLOBAL_LEVEL_KEY))||1));}catch(e){return 1;}}
 function syncGlobalLevel(level){const n=Math.max(1,Math.floor(Number(level)||1),storedGlobalLevel());try{localStorage.setItem(GLOBAL_LEVEL_KEY,String(n));}catch(e){}return n;}
@@ -333,10 +341,14 @@ function visibleCard(q){
   return {question:swap(q.q),options:(q.display||[]).map(swap),focus:(q.focus||[]).map(swap),names:map,occurrence};
 }
 
-function renderVerbPrompt(q,fallback=""){
+function renderVerbPrompt(q,fallback="",stage=3){
   const el=$("questionText");if(!el)return;
   if(!q?.lemma){el.textContent=fallback;return;}
-  el.innerHTML='<span class="verb-prompt">'+escapeHtml(String(q.lemma).toUpperCase())+'</span><span class="tense-prompt">'+escapeHtml(String(q.tenseLabel||"").toUpperCase())+'</span><span class="person-prompt">'+escapeHtml(q.personLabel||"")+'</span>';
+  const parts=[];
+  if(stage>=1)parts.push('<span class="verb-prompt">'+escapeHtml(String(q.lemma).toUpperCase())+'</span>');
+  if(stage>=2)parts.push('<span class="tense-prompt">'+escapeHtml(String(q.tenseLabel||"").toUpperCase())+'</span>');
+  if(stage>=3)parts.push('<span class="person-prompt">'+escapeHtml(q.personLabel||"")+'</span>');
+  el.innerHTML=parts.join("");
 }
 function focusMarkup(text,answer,fragments=[]){
   text=String(text);const ranges=[];
@@ -1070,11 +1082,16 @@ function nextQuestion(){
   const rewardPrior=state.seen[current.fingerprint]||null,rewardGap=rewardPrior?state.level-rewardPrior.lastLevel:null,rewardSpecial=rewardPrior?.lapses>0&&!rewardPrior.masteredRewarded&&rewardPrior.lastCorrect===true&&rewardPrior.count>=2&&rewardGap>=2?"MASTER CHANCE":rewardPrior?.lapses>0&&rewardPrior.lastCorrect===false?"RECOVERY":rewardPrior?"SPACED REVIEW":session.index===session.plan.length-1?"FINAL":"";
   $("qTotal").textContent="/ "+session.plan.length+(rewardSpecial?" · "+rewardSpecial:"");
   const view=visibleCard(current);current.visibleQuestion=view.question;current.visibleOptions=view.options;current.visibleFocus=view.focus;current.visibleNames=view.names;
-  $("questionText").classList.remove("focus-active");renderVerbPrompt(current,view.question);
-  const wrap=$("answers");wrap.innerHTML="";wrap.classList.add("cue-phase");wrap.setAttribute("aria-hidden","true");
-  current.display.forEach((txt,i)=>{const b=document.createElement("button"),optionText=String(view.options[i]??""),glyphs=[...optionText.replace(/\s+/g,"")].length;b.className="answer"+(glyphs>=11?" answer-xxlong":glyphs>=9?" answer-xlong":glyphs>=7?" answer-long":"");b.textContent=optionText;b.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse"){e.preventDefault();answer(i,false);}});b.addEventListener("click",()=>answer(i,false));wrap.appendChild(b);});
+  $("questionText").classList.remove("focus-active");renderVerbPrompt(current,view.question,1);
+  const wrap=$("answers");wrap.innerHTML="";wrap.classList.add("cue-phase");wrap.setAttribute("aria-hidden","true");const answerColors=shuffledAnswerColorClasses();
+  current.display.forEach((txt,i)=>{const b=document.createElement("button"),optionText=String(view.options[i]??""),glyphs=[...optionText.replace(/\s+/g,"")].length;b.className="answer "+answerColors[i]+(glyphs>=11?" answer-xxlong":glyphs>=9?" answer-xlong":glyphs>=7?" answer-long":"");b.textContent=optionText;b.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse"){e.preventDefault();answer(i,false);}});b.addEventListener("click",()=>answer(i,false));wrap.appendChild(b);});
   $("timerText").textContent="LEE";$("timer").classList.remove("urgent");$("timer").classList.add("cue-reading");$("timer").style.setProperty("--timer-cut","100%");renderSegments(0);
-  cueHandle=setTimeout(()=>{if(!session||locked!==true)return;cueHandle=null;wrap.classList.remove("cue-phase");wrap.setAttribute("aria-hidden","false");$("timer").classList.remove("cue-reading");$("timerText").textContent=TIME_LIMIT.toFixed(1);renderSegments(TIME_LIMIT);locked=false;startTimer();},CUE_TIME*1000);
+  const revealAnswers=()=>{if(!session||locked!==true)return;cueHandle=null;wrap.classList.remove("cue-phase");wrap.setAttribute("aria-hidden","false");$("timer").classList.remove("cue-reading");$("timerText").textContent=TIME_LIMIT.toFixed(1);renderSegments(TIME_LIMIT);locked=false;startTimer();};
+  cueHandle=setTimeout(()=>{if(!session||locked!==true)return;renderVerbPrompt(current,view.question,2);$("timerText").textContent="MODE";
+    cueHandle=setTimeout(()=>{if(!session||locked!==true)return;renderVerbPrompt(current,view.question,3);$("timerText").textContent="PERSONA";
+      cueHandle=setTimeout(revealAnswers,PERSON_CUE_TIME*1000);
+    },TENSE_CUE_TIME*1000);
+  },VERB_CUE_TIME*1000);
 }
 function feedback(ok,type,sec,correct,appearance,patternAppearance,phraseCorrect=0,phraseWrong=0,cat=""){
   const f=$("feedback"),skill=skillLabel(cat),rewardBits=[session?.lastReward,session?.combo>=2?`COMBO ×${session.combo}`:""].filter(Boolean).join(" · ");f.className="feedback "+(ok?"ok":"no");

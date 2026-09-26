@@ -509,6 +509,12 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 #answers .answer.answer-xxlong{font-size:clamp(23px,6.6vw,31px);line-height:1;letter-spacing:-.035em;white-space:nowrap;text-wrap:nowrap;overflow-wrap:normal;word-break:normal}
 @media(max-width:360px){#answers .answer.answer-long{font-size:clamp(29px,8.8vw,36px)}#answers .answer.answer-xlong{font-size:clamp(25px,7.4vw,32px)}#answers .answer.answer-xxlong{font-size:clamp(21px,6.2vw,28px)}}
 </style>
+<style id="dynamic-answer-palette">
+.answer.option-c1:not(.good):not(.bad){background:#665a3c}
+.answer.option-c2:not(.good):not(.bad){background:#3f6360}
+.answer.option-c3:not(.good):not(.bad){background:#50617c}
+.answer.option-c4:not(.good):not(.bad){background:#6b5366}
+</style>
 </head>
 <body>
 <div class="app">
@@ -689,7 +695,7 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 <script src="./lessons.js?v=0.3.6"></script>
 <script src="./keys.js?v=0.3.6"></script>
 <script src="./error-coach.js?v=0.3.6"></script>
-<script src="./app.js?v=0.4.0"></script>
+<script src="./app.js?v=0.5.0"></script>
 <script>
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   navigator.serviceWorker.register('./service-worker.js?v=0.3.6',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
