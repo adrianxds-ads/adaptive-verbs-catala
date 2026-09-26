@@ -239,7 +239,7 @@ function graduationEvidence(st){
   const now=Date.now(),day=86400000,hist=state.history||[],training=hist.filter(r=>r.sessionMode!=="final"),reviews=training.filter(r=>r.review).slice(-300);
   const retentionAccuracy=reviews.length?reviews.filter(r=>r.correct).length/reviews.length:0;
   const firstTs=hist.find(r=>Number.isFinite(r.ts))?.ts||state.createdAt||now,spanDays=Math.max(0,(now-firstTs)/day);
-  const recentSessions=(state.sessionHistory||[]).filter(x=>x.mode==="training").slice(-8),stableAccuracy=recentSessions.length?mean(recentSessions.map(x=>Number(x.accuracy)||0)):0,stableTimeMs=recentSessions.length?mean(recentSessions.map(x=>Number(x.avgMs)||0)):0;
+  const recentSessions=(state.sessionHistory||[]).filter(x=>!x.mode||x.mode==="training").slice(-8),stableAccuracy=recentSessions.length?mean(recentSessions.map(x=>Number(x.accuracy)||0)):0,stableTimeMs=recentSessions.length?mean(recentSessions.map(x=>Number(x.avgMs)||0)):0;
   const fluencyPass=st.auto>=.04||(st.accuracy>=.80&&st.avgMs>0&&st.avgMs<=5500);
   const gates={coverage:st.coverage>=.999,mastery:st.mastery>=.85,minSkill:st.minSkill>=.70,keys:st.keysUnlocked>=baseKeyCount(),calendar:spanDays>=14,retentionEvidence:reviews.length>=150,retention:retentionAccuracy>=.72,stabilityEvidence:recentSessions.length>=8,stability:stableAccuracy>=.68,fluency:fluencyPass};
   return {eligible:Object.values(gates).every(Boolean),gates,reviewCount:reviews.length,retentionAccuracy,spanDays,recentSessions:recentSessions.length,stableAccuracy,stableTimeMs};
@@ -744,7 +744,7 @@ function observedRate(rows,valueFn,current,start){
   return {rate:clamp(blended,floor,ceiling),longRate,recentRate,totalHours};
 }
 function campaignPracticeEstimate(){
-  const c=campaign2Readiness(),st=overallStats(),g=c.graduation,hist=state.history||[],sessions=(state.sessionHistory||[]).filter(x=>x.mode==="training"),now=Date.now(),day=86400000,focus=focusSummary(),lp=campaignLearningProgress(st);
+  const c=campaign2Readiness(),st=overallStats(),g=c.graduation,hist=state.history||[],sessions=(state.sessionHistory||[]).filter(x=>!x.mode||x.mode==="training"),now=Date.now(),day=86400000,focus=focusSummary(),lp=campaignLearningProgress(st);
   const firstTs=hist.find(x=>Number.isFinite(x.ts))?.ts||state.createdAt||now,spanDays=Math.max(.25,(now-firstTs)/day),todayMin=focus.todayMs/60000,recommendedMin=Math.max(1,focus.target.recommended||15);
   const due=Object.values(state.seen||{}).filter(x=>x?.lastTs&&now>=(x.nextDueTs||x.lastTs+(x.intervalDays||1)*day)).length,dueRatio=Object.keys(state.seen||{}).length?due/Object.keys(state.seen||{}).length:1;
   const progressForRow=x=>clamp(((.65*(x.mastery??lp.initialMastery)+.25*(x.coverage??0)+.10*(x.automatic??0))-lp.baseline)/Math.max(.001,lp.target-lp.baseline));
@@ -959,7 +959,7 @@ function renderGrowthTree(){
 
 const RELEASE_NOTES=["v0.3.0 · fixed master bank","120 verbs · 12,360 canonical slots · 19 paradigms","Tier 1 functional core active now; Tiers 2–3 unlock automatically","Original 180 audited pilot forms preserved exactly"];
 function renderReleaseInfo(){const host=$("releaseInfo"),online=location.protocol.startsWith("http"),build=`${online?"ONLINE":"LOCAL"} BUILD · v${APP_VERSION} · BANK ${CAMPAIGN?.version||"—"}`;if(host)host.innerHTML=`<details class="release-info"><summary><b>Adaptive Verbs · Català v${APP_VERSION}</b><span>WHAT’S NEW</span></summary><ul>${["v0.3.0 · banco maestro cerrado desde el principio","120 verbos · 12.360 slots canónicos · 19 paradigmas","Tier 1 funcional activo; Tier 2 en L15 y Tier 3 en L35 automáticamente","Tus 180 formas anteriores y todo el progreso se conservan"].map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></details>`;if($("buildVersion"))$("buildVersion").textContent=build;if($("endBuildVersion"))$("endBuildVersion").textContent=build;const meta=document.querySelector('meta[name="ae-version"]');if(meta)meta.setAttribute("content",APP_VERSION);document.title=`Adaptive Verbs · Català · Campaign 1 · v${APP_VERSION}`;}
-function medalCounts(){const rows=(state.sessionHistory||[]).filter(x=>x.mode==="training");return window.AdrianAchievements?.countsFromHistory?.(rows)||{blue:0,violet:0,gold:0};}
+function medalCounts(){const rows=(state.sessionHistory||[]).filter(x=>!x.mode||x.mode==="training");return window.AdrianAchievements?.countsFromHistory?.(rows)||{blue:0,violet:0,gold:0};}
 function renderMedalSummary(){const html=window.AdrianAchievements?.medalStripHtml?.(medalCounts(),{context:"summary"})||"";const a=$("startMedals"),b=$("endMedals");if(a)a.innerHTML=html;if(b)b.innerHTML=html;}
 function renderStart(){
   ensureDailyKey();
