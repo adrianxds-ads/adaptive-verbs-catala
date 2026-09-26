@@ -1,6 +1,6 @@
 
 const INITIAL_PRIORS = {};
-const APP_VERSION = "0.5.0";
+const APP_VERSION = "0.6.0";
 const STORAGE_KEY = "adaptive_verbs_catala_campaign1_v1";
 const GLOBAL_LEVEL_KEY = "adaptive_verbs_catala_global_level_v1";
 const SESSION_SIZE = 15;
@@ -23,9 +23,9 @@ let focusLastActivityTs=Date.now(),focusLastTickTs=Date.now(),focusSaveMs=0,focu
 
 const $=id=>document.getElementById(id);
 function shuffledAnswerColorClasses(){
-  const a=["option-c1","option-c2","option-c3","option-c4"];
+  const a=["option-c1","option-c2","option-c3","option-c4"],tones=["option-tone-1","option-tone-2","option-tone-3"];
   for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
-  return a;
+  return a.map(c=>c+" "+tones[Math.floor(Math.random()*tones.length)]);
 }
 function applyVisualSystemTokens(){const r=document.documentElement;AVS_RANKS.forEach((x,i)=>{r.style.setProperty(`--rank-${i+1}`,x.color);r.style.setProperty(`--rank-${i+1}-surface`,x.surface||x.color);r.style.setProperty(`--rank-${i+1}-band`,x.band||x.color);r.style.setProperty(`--rank-${i+1}-text`,x.text||x.color);});r.style.setProperty("--reward-gold",COLOR_BANDS_15[14]);r.style.setProperty("--reward-gold-text",AVS_TEXT_BANDS_15[14]);r.style.setProperty("--elite-violet",COLOR_BANDS_15[13]);r.style.setProperty("--negative-wine",COLOR_BANDS_15[3]);}
 function storedGlobalLevel(){try{return Math.max(1,Math.floor(Number(localStorage.getItem(GLOBAL_LEVEL_KEY))||1));}catch(e){return 1;}}
@@ -102,7 +102,7 @@ function showMemoryEcho(cat,correctAnswer=""){
   const el=$("memoryEcho"),x=memoryEchoFor(cat,correctAnswer);if(!el||!x)return;
   el.innerHTML=`<b>${escapeHtml(x.title)}</b><span>${escapeHtml(x.artist)}</span>`;
   el.classList.remove("show");void el.offsetWidth;el.classList.add("show");
-  clearTimeout(showMemoryEcho._timer);showMemoryEcho._timer=setTimeout(()=>el.classList.remove("show"),1350);
+  clearTimeout(showMemoryEcho._timer);showMemoryEcho._timer=setTimeout(()=>el.classList.remove("show"),720);
 }
 function playKeyFlip(revealed=true,soft=false){
   const notes=revealed?[[659.25,0],[987.77,.045],[1318.5,.095]]:[[987.77,0],[783.99,.045],[587.33,.09]],gain=soft?.006:.011;
@@ -344,10 +344,10 @@ function visibleCard(q){
 function renderVerbPrompt(q,fallback="",stage=3){
   const el=$("questionText");if(!el)return;
   if(!q?.lemma){el.textContent=fallback;return;}
-  const parts=[];
-  if(stage>=1)parts.push('<span class="verb-prompt">'+escapeHtml(String(q.lemma).toUpperCase())+'</span>');
-  if(stage>=2)parts.push('<span class="tense-prompt">'+escapeHtml(String(q.tenseLabel||"").toUpperCase())+'</span>');
-  if(stage>=3)parts.push('<span class="person-prompt">'+escapeHtml(q.personLabel||"")+'</span>');
+  const parts=[],fresh=n=>stage===n?" cue-new":"";
+  if(stage>=1)parts.push('<span class="verb-prompt'+fresh(1)+'">'+escapeHtml(String(q.lemma).toUpperCase())+'</span>');
+  if(stage>=2)parts.push('<span class="tense-prompt'+fresh(2)+'">'+escapeHtml(String(q.tenseLabel||"").toUpperCase())+'</span>');
+  if(stage>=3)parts.push('<span class="person-prompt'+fresh(3)+'">'+escapeHtml(q.personLabel||"")+'</span>');
   el.innerHTML=parts.join("");
 }
 function focusMarkup(text,answer,fragments=[]){
@@ -636,7 +636,7 @@ const AI_ANALYSIS_CONTRACT={
   errors:"Use formId, verb, tense/mood, person and errorType. Distinguish PERSON_CONFUSION, TENSE_CONFUSION, MOOD_CONFUSION, STEM_ERROR, ACCENT_ERROR, TIMEOUT and OTHER.",
   discoveryMethod:"Prefer pattern discovery: repeated error → contrast → short Key → verify on later spaced questions. Do not front-load rules.",
   orthography:"Accents and diaereses are part of the answer. Treat missing or wrong diacritics as real orthographic errors.",
-  timer:"Timing is split across Campaign 1: a fixed 2.2-second cue-reading phase with answers hidden, followed by a fixed 5.0-second response window. Response-time metrics start only when answers appear. Do not recommend changing either phase without substantial evidence.",
+  timer:"Timing is split across Campaign 1: a fixed 4.8-second staged cue-reading phase (verb → tense/mood → person) with answers hidden, followed by a fixed 5.0-second response window. Response-time metrics start only when answers appear. Do not recommend changing either phase without substantial evidence.",
   retention:"Use real calendar study span and due-review count when judging consolidation. Same-day recognition is not proof of retention.",
   scope:"This app teaches Catalan verb forms only. Do not expand recommendations into general vocabulary, reading comprehension or unrelated grammar."
 };
@@ -1085,9 +1085,9 @@ function nextQuestion(){
   $("questionText").classList.remove("focus-active");renderVerbPrompt(current,view.question,1);
   const wrap=$("answers");wrap.innerHTML="";wrap.classList.add("cue-phase");wrap.setAttribute("aria-hidden","true");const answerColors=shuffledAnswerColorClasses();
   current.display.forEach((txt,i)=>{const b=document.createElement("button"),optionText=String(view.options[i]??""),glyphs=[...optionText.replace(/\s+/g,"")].length;b.className="answer "+answerColors[i]+(glyphs>=11?" answer-xxlong":glyphs>=9?" answer-xlong":glyphs>=7?" answer-long":"");b.textContent=optionText;b.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse"){e.preventDefault();answer(i,false);}});b.addEventListener("click",()=>answer(i,false));wrap.appendChild(b);});
-  $("timerText").textContent="LEE";$("timer").classList.remove("urgent");$("timer").classList.add("cue-reading");$("timer").style.setProperty("--timer-cut","100%");renderSegments(0);
+  $("timerText").textContent="VERB";$("timer").classList.remove("urgent");$("timer").classList.add("cue-reading");$("timer").style.setProperty("--timer-cut","100%");renderSegments(0);
   const revealAnswers=()=>{if(!session||locked!==true)return;cueHandle=null;wrap.classList.remove("cue-phase");wrap.setAttribute("aria-hidden","false");$("timer").classList.remove("cue-reading");$("timerText").textContent=TIME_LIMIT.toFixed(1);renderSegments(TIME_LIMIT);locked=false;startTimer();};
-  cueHandle=setTimeout(()=>{if(!session||locked!==true)return;renderVerbPrompt(current,view.question,2);$("timerText").textContent="MODE";
+  cueHandle=setTimeout(()=>{if(!session||locked!==true)return;renderVerbPrompt(current,view.question,2);$("timerText").textContent="TEMPS";
     cueHandle=setTimeout(()=>{if(!session||locked!==true)return;renderVerbPrompt(current,view.question,3);$("timerText").textContent="PERSONA";
       cueHandle=setTimeout(revealAnswers,PERSON_CUE_TIME*1000);
     },TENSE_CUE_TIME*1000);
@@ -1096,8 +1096,8 @@ function nextQuestion(){
 function feedback(ok,type,sec,correct,appearance,patternAppearance,phraseCorrect=0,phraseWrong=0,cat=""){
   const f=$("feedback"),skill=skillLabel(cat),rewardBits=[session?.lastReward,session?.combo>=2?`COMBO ×${session.combo}`:""].filter(Boolean).join(" · ");f.className="feedback "+(ok?"ok":"no");
   f.innerHTML=`<div class="feedback-record" aria-label="${phraseCorrect} correctas y ${phraseWrong} incorrectas"><span class="record-good"><i>V</i><b>${phraseCorrect}</b></span><span class="record-bad"><i>?</i><b>${phraseWrong}</b></span><small>${appearance} intentos · ${sec.toFixed(2)}s</small></div>${skill||rewardBits?`<div class="feedback-skill-tag">${escapeHtml([skill,rewardBits].filter(Boolean).join(" · "))}</div>`:""}`;
-  requestAnimationFrame(()=>f.classList.add("show"));
-  const hold=ok?510:(type==="fast-wrong"?1165:type==="timeout"?1060:1020);setTimeout(()=>f.classList.remove("show"),hold);
+  const showDelay=ok?55:95;setTimeout(()=>f.classList.add("show"),showDelay);
+  const hold=ok?430:720;setTimeout(()=>f.classList.remove("show"),showDelay+hold);
 }
 function answer(pos,timeout=false){
   if(locked)return;locked=true;clearInterval(timerHandle);
@@ -1115,7 +1115,7 @@ function answer(pos,timeout=false){
   const shownQuestion=current.visibleQuestion||current.q,shownOptions=current.visibleOptions||current.display,load=promptLoadMeta(shownQuestion);
   const errorType=timeout?"TIMEOUT":ok?null:(current.displayMeta?.[pos]?.errorType||"OTHER");
   const rec={formId:current.formId,lemma:current.lemma,tenseId:current.tenseId,tenseLabel:current.tenseLabel,mood:current.mood,tense:current.tense,personCode:current.personCode,personLabel:current.personLabel,retrievalMode:current.retrievalMode||"RECOGNITION",errorType,selectedMeta:pos>=0?(current.displayMeta?.[pos]||null):null,level:state.level,qid:current.id,cat:current.cat,skill:current.skill,templateId:current.templateId,domain:current.domain,correct:ok,ms:Math.round(sec*1000),type,speedScore,occurrence:appearance,patternOccurrence:patternAppearance,review:!!previousSeen,gap:previousSeen?state.level-previousSeen.lastLevel:null,ts:Date.now(),question:shownQuestion,originalQuestion:current.q,userAnswer:pos>=0?shownOptions[pos]:"No answer",correctAnswer:shownOptions[current.correctPos],rule:current.rule,promptWords:load.words,promptChars:load.chars,readingLoad:load.band,targetTimeSec:current.targetTime||3.6,cueTimeSec:CUE_TIME,timeLimitSec:TIME_LIMIT,sessionMode:session.mode};
-  if(!ok){hideCorrectReveal();showMemoryEcho(current.cat,rec.correctAnswer);}else hideCorrectReveal();
+  if(!ok){hideCorrectReveal();const echoCat=current.cat,echoAnswer=rec.correctAnswer;setTimeout(()=>{if(session)showMemoryEcho(echoCat,echoAnswer);},260);}else hideCorrectReveal();
   try{flashGrammarFocus(shownQuestion,rec.correctAnswer,current.visibleFocus||current.focus||[]);}catch(e){console.error("Grammar focus flash failed",e);}
   state.history.push(rec);state.history=state.history.slice(-12000);state.activeTrainingMs=(state.activeTrainingMs||0)+rec.ms;state.totalAttempts++;session.records.push(rec);session.times.push(sec);if(ok)session.correct++;if(type==="automatic")session.automatic++;
   const answeredIndex=session.index,delay=ok?555:(type==="fast-wrong"?1200:type==="timeout"?1095:1060);setTimeout(()=>{if(!session||session.index!==answeredIndex)return;session.index++;try{nextQuestion();}catch(e){console.error("Question advance recovered",e);locked=false;setTimeout(nextQuestion,120);}},delay);
