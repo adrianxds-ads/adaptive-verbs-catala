@@ -1,13 +1,15 @@
 
 const INITIAL_PRIORS = {};
-const APP_VERSION = "0.6.0";
+const APP_VERSION = "0.7.0";
 const STORAGE_KEY = "adaptive_verbs_catala_campaign1_v1";
 const GLOBAL_LEVEL_KEY = "adaptive_verbs_catala_global_level_v1";
 const SESSION_SIZE = 15;
 const VERB_CUE_TIME = 1.6;
 const TENSE_CUE_TIME = 1.7;
 const PERSON_CUE_TIME = 1.5;
+const THINK_TIME = 4.5;
 const CUE_TIME = VERB_CUE_TIME + TENSE_CUE_TIME + PERSON_CUE_TIME;
+const PRE_ANSWER_TIME = CUE_TIME + THINK_TIME;
 const TIME_LIMIT = 5;
 const HISTORY_LIMIT = 6000;
 const SESSION_HISTORY_LIMIT = 1000;
@@ -274,7 +276,7 @@ function campaign2Readiness(){
 }
 function campaign2Brief(){
   const r=campaign2Readiness(),st=overallStats();
-  return `Adaptive Verbs · Català · Campaign 1 diagnostic. Use my exported GLOBAL JSON as the primary longitudinal source. This is one continuous campaign with a fixed master bank: ${BANK.length} canonical slots across ${CAMPAIGN.skills.length} verbs and ${new Set(BANK.map(q=>q.tenseId)).size} paradigms; no manual content expansion is required. Current active scheduling tier: ${activeBankTier()} of 3 (${activeTrainingBank().length} eligible slots). There are 15 questions per level, split timing: ${CUE_TIME.toFixed(1)}s cue-reading phase with answers hidden, then ${TIME_LIMIT.toFixed(1)}s response window. Current evidence: readiness ${pct(r.score)}%, coverage ${pct(st.coverage)}%, mastery ${pct(st.mastery)}%, weakest verb ${pct(st.minSkill)}%, review retention ${pct(r.graduation.retentionAccuracy)}% across ${r.graduation.reviewCount} spaced-review answers, automatic ${pct(st.auto)}%, 8-level stability ${pct(r.graduation.stableAccuracy)}%, real evidence span ${r.graduation.spanDays.toFixed(1)} days, Key Diary ${st.keysUnlocked}/${baseKeyCount()}. Analyse verb, tense/mood, person, stem, ending and orthographic errors. The master bank is fixed; progression should happen through scheduling, retrieval mode and spaced evidence rather than later content additions.`;
+  return `Adaptive Verbs · Català · Campaign 1 diagnostic. Use my exported GLOBAL JSON as the primary longitudinal source. This is one continuous campaign with a fixed master bank: ${BANK.length} canonical slots across ${CAMPAIGN.skills.length} verbs and ${new Set(BANK.map(q=>q.tenseId)).size} paradigms; no manual content expansion is required. Current active scheduling tier: ${activeBankTier()} of 3 (${activeTrainingBank().length} eligible slots). There are 15 questions per level, split timing: ${CUE_TIME.toFixed(1)}s staged cue reveal, then ${THINK_TIME.toFixed(1)}s silent recall with answers hidden, then ${TIME_LIMIT.toFixed(1)}s response window. Current evidence: readiness ${pct(r.score)}%, coverage ${pct(st.coverage)}%, mastery ${pct(st.mastery)}%, weakest verb ${pct(st.minSkill)}%, review retention ${pct(r.graduation.retentionAccuracy)}% across ${r.graduation.reviewCount} spaced-review answers, automatic ${pct(st.auto)}%, 8-level stability ${pct(r.graduation.stableAccuracy)}%, real evidence span ${r.graduation.spanDays.toFixed(1)} days, Key Diary ${st.keysUnlocked}/${baseKeyCount()}. Analyse verb, tense/mood, person, stem, ending and orthographic errors. The master bank is fixed; progression should happen through scheduling, retrieval mode and spaced evidence rather than later content additions.`;
 }
 function stageInfo(coverage){
   const seen=Object.keys(state.seen).length,total=Math.max(1,BANK.length),step=Math.max(1,Math.ceil(total/6));
@@ -636,7 +638,7 @@ const AI_ANALYSIS_CONTRACT={
   errors:"Use formId, verb, tense/mood, person and errorType. Distinguish PERSON_CONFUSION, TENSE_CONFUSION, MOOD_CONFUSION, STEM_ERROR, ACCENT_ERROR, TIMEOUT and OTHER.",
   discoveryMethod:"Prefer pattern discovery: repeated error → contrast → short Key → verify on later spaced questions. Do not front-load rules.",
   orthography:"Accents and diaereses are part of the answer. Treat missing or wrong diacritics as real orthographic errors.",
-  timer:"Timing is split across Campaign 1: a fixed 4.8-second staged cue-reading phase (verb → tense/mood → person) with answers hidden, followed by a fixed 5.0-second response window. Response-time metrics start only when answers appear. Do not recommend changing either phase without substantial evidence.",
+  timer:"Timing is split across Campaign 1: a fixed 4.8-second staged cue reveal (verb → tense/mood → person), followed by a fixed 4.5-second silent recall phase with answers still hidden, then a fixed 5.0-second response window. Response-time metrics start only when answers appear. Do not recommend changing these phases without substantial evidence.",
   retention:"Use real calendar study span and due-review count when judging consolidation. Same-day recognition is not proof of retention.",
   scope:"This app teaches Catalan verb forms only. Do not expand recommendations into general vocabulary, reading comprehension or unrelated grammar."
 };
@@ -1089,7 +1091,9 @@ function nextQuestion(){
   const revealAnswers=()=>{if(!session||locked!==true)return;cueHandle=null;wrap.classList.remove("cue-phase");wrap.setAttribute("aria-hidden","false");$("timer").classList.remove("cue-reading");$("timerText").textContent=TIME_LIMIT.toFixed(1);renderSegments(TIME_LIMIT);locked=false;startTimer();};
   cueHandle=setTimeout(()=>{if(!session||locked!==true)return;renderVerbPrompt(current,view.question,2);$("timerText").textContent="TEMPS";
     cueHandle=setTimeout(()=>{if(!session||locked!==true)return;renderVerbPrompt(current,view.question,3);$("timerText").textContent="PERSONA";
-      cueHandle=setTimeout(revealAnswers,PERSON_CUE_TIME*1000);
+      cueHandle=setTimeout(()=>{if(!session||locked!==true)return;$("timerText").textContent="PENSA";
+        cueHandle=setTimeout(revealAnswers,THINK_TIME*1000);
+      },PERSON_CUE_TIME*1000);
     },TENSE_CUE_TIME*1000);
   },VERB_CUE_TIME*1000);
 }
@@ -1114,7 +1118,7 @@ function answer(pos,timeout=false){
   state.seen[current.fingerprint]={count:appearance,lastLevel:state.level,lastTs:now,lastCorrect:ok,lapses,intervalDays,nextDueTs:now+intervalDays*86400000,masteredRewarded:!!(previousSeen?.masteredRewarded||masteredReward)};state.templateLast[current.templateId]=state.level;state.templateSeen[current.templateId]={count:patternAppearance,lastLevel:state.level,lastTs:now};
   const shownQuestion=current.visibleQuestion||current.q,shownOptions=current.visibleOptions||current.display,load=promptLoadMeta(shownQuestion);
   const errorType=timeout?"TIMEOUT":ok?null:(current.displayMeta?.[pos]?.errorType||"OTHER");
-  const rec={formId:current.formId,lemma:current.lemma,tenseId:current.tenseId,tenseLabel:current.tenseLabel,mood:current.mood,tense:current.tense,personCode:current.personCode,personLabel:current.personLabel,retrievalMode:current.retrievalMode||"RECOGNITION",errorType,selectedMeta:pos>=0?(current.displayMeta?.[pos]||null):null,level:state.level,qid:current.id,cat:current.cat,skill:current.skill,templateId:current.templateId,domain:current.domain,correct:ok,ms:Math.round(sec*1000),type,speedScore,occurrence:appearance,patternOccurrence:patternAppearance,review:!!previousSeen,gap:previousSeen?state.level-previousSeen.lastLevel:null,ts:Date.now(),question:shownQuestion,originalQuestion:current.q,userAnswer:pos>=0?shownOptions[pos]:"No answer",correctAnswer:shownOptions[current.correctPos],rule:current.rule,promptWords:load.words,promptChars:load.chars,readingLoad:load.band,targetTimeSec:current.targetTime||3.6,cueTimeSec:CUE_TIME,timeLimitSec:TIME_LIMIT,sessionMode:session.mode};
+  const rec={formId:current.formId,lemma:current.lemma,tenseId:current.tenseId,tenseLabel:current.tenseLabel,mood:current.mood,tense:current.tense,personCode:current.personCode,personLabel:current.personLabel,retrievalMode:current.retrievalMode||"RECOGNITION",errorType,selectedMeta:pos>=0?(current.displayMeta?.[pos]||null):null,level:state.level,qid:current.id,cat:current.cat,skill:current.skill,templateId:current.templateId,domain:current.domain,correct:ok,ms:Math.round(sec*1000),type,speedScore,occurrence:appearance,patternOccurrence:patternAppearance,review:!!previousSeen,gap:previousSeen?state.level-previousSeen.lastLevel:null,ts:Date.now(),question:shownQuestion,originalQuestion:current.q,userAnswer:pos>=0?shownOptions[pos]:"No answer",correctAnswer:shownOptions[current.correctPos],rule:current.rule,promptWords:load.words,promptChars:load.chars,readingLoad:load.band,targetTimeSec:current.targetTime||3.6,cueTimeSec:CUE_TIME,thinkTimeSec:THINK_TIME,preAnswerTimeSec:PRE_ANSWER_TIME,timeLimitSec:TIME_LIMIT,sessionMode:session.mode};
   if(!ok){hideCorrectReveal();const echoCat=current.cat,echoAnswer=rec.correctAnswer;setTimeout(()=>{if(session)showMemoryEcho(echoCat,echoAnswer);},260);}else hideCorrectReveal();
   try{flashGrammarFocus(shownQuestion,rec.correctAnswer,current.visibleFocus||current.focus||[]);}catch(e){console.error("Grammar focus flash failed",e);}
   state.history.push(rec);state.history=state.history.slice(-12000);state.activeTrainingMs=(state.activeTrainingMs||0)+rec.ms;state.totalAttempts++;session.records.push(rec);session.times.push(sec);if(ok)session.correct++;if(type==="automatic")session.automatic++;

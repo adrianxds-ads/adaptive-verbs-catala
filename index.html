@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="ae-version" content="0.6.0">
-<title>Adaptive Verbs · Català · Campaign 1 · v0.6.0</title>
+<title>Adaptive Verbs · Català · Campaign 1 · v0.7.0</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <style>
@@ -500,15 +500,15 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 /* Català · larger gameplay typography without enlarging dashboard chrome. */
 #questionText .verb-prompt{font-size:clamp(39px,11vw,62px)}
 #questionText .tense-prompt{font-size:clamp(24px,7.1vw,37px);padding:8px 15px}
-#questionText .person-prompt{font-size:clamp(21px,6vw,30px)}
-#answers .answer{min-height:154px;padding:18px 14px;font-size:clamp(42px,10.5vw,60px);line-height:1.01}
-@media(max-width:520px){#questionText .verb-prompt{font-size:clamp(37px,11.2vw,53px)}#questionText .tense-prompt{font-size:clamp(24px,7.2vw,32px);padding:8px 12px}#questionText .person-prompt{font-size:clamp(21px,6.1vw,28px)}#answers .answer{min-height:148px;padding:16px 9px;font-size:clamp(44px,13vw,58px);line-height:1.0}}
+#questionText .person-prompt{font-size:clamp(21px,6vw,30px);color:#9ecbff;text-shadow:0 0 18px rgba(120,184,255,.18)}
+#answers .answer{min-height:154px;padding:18px 14px;font-size:clamp(34px,8.7vw,48px);line-height:1.03}
+@media(max-width:520px){#questionText .verb-prompt{font-size:clamp(37px,11.2vw,53px)}#questionText .tense-prompt{font-size:clamp(24px,7.2vw,32px);padding:8px 12px}#questionText .person-prompt{font-size:clamp(21px,6.1vw,28px)}#answers .answer{min-height:148px;padding:16px 10px;font-size:clamp(31px,9.2vw,42px);line-height:1.03}}
 </style>
 <style id="avc-answer-fit-v1">
 /* Keep short forms bold and large, but fit longer Catalan conjugations on one line. */
-#answers .answer.answer-long{font-size:clamp(32px,9.2vw,42px);line-height:1;letter-spacing:-.025em;white-space:nowrap;text-wrap:nowrap;overflow-wrap:normal;word-break:normal}
-#answers .answer.answer-xlong{font-size:clamp(27px,7.8vw,36px);line-height:1;letter-spacing:-.03em;white-space:nowrap;text-wrap:nowrap;overflow-wrap:normal;word-break:normal}
-#answers .answer.answer-xxlong{font-size:clamp(23px,6.6vw,31px);line-height:1;letter-spacing:-.035em;white-space:nowrap;text-wrap:nowrap;overflow-wrap:normal;word-break:normal}
+#answers .answer.answer-long{font-size:clamp(28px,7.4vw,36px);line-height:1;letter-spacing:-.022em;white-space:nowrap;text-wrap:nowrap;overflow-wrap:normal;word-break:normal}
+#answers .answer.answer-xlong{font-size:clamp(24px,6.6vw,31px);line-height:1;letter-spacing:-.026em;white-space:nowrap;text-wrap:nowrap;overflow-wrap:normal;word-break:normal}
+#answers .answer.answer-xxlong{font-size:clamp(21px,5.8vw,27px);line-height:1;letter-spacing:-.03em;white-space:nowrap;text-wrap:nowrap;overflow-wrap:normal;word-break:normal}
 @media(max-width:360px){#answers .answer.answer-long{font-size:clamp(29px,8.8vw,36px)}#answers .answer.answer-xlong{font-size:clamp(25px,7.4vw,32px)}#answers .answer.answer-xxlong{font-size:clamp(21px,6.2vw,28px)}}
 </style>
 <style id="dynamic-answer-palette">
@@ -552,7 +552,7 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
     <div id="startMedals" class="medal-summary-host"></div>
     <p class="subtitle">Adaptive Verbs · Català · Complete Verb Campaign</p>
     <div class="ai-valuation-box hero-ai"><div><span>AI VALORATION</span><b id="startAiLevel">— / 15</b><small id="startAiConfidence">Estimación adaptativa</small></div><em>AI</em></div>
-    <div class="meta">12.360 formes canòniques · 120 verbs · 15 preguntes per nivell · 4,8s pista escalonada + 5s resposta</div>
+    <div class="meta">12.360 formes canòniques · 120 verbs · 15 preguntes · 4,8s pista + 4,5s pensa + 5s resposta</div>
     <div class="hero-progress">
       <div class="progress-label"><span>Coverage</span><strong id="coverageText">0 / 3000</strong></div>
       <div class="track"><div id="coverageFill" class="fill" style="width:0%"></div></div>
@@ -601,7 +601,7 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 <section id="statsScreen" class="screen dashboard-screen hidden">
   <div class="panel">
     <div class="top-dashboard-nav"><button id="statsTopDashboardBtn" class="ghost">DASHBOARD</button></div>
-    <div class="resulttitle"><div class="kicker">DASHBOARD · v0.1.1</div><h1>Statistics</h1><p>Longitudinal snapshot before the next level.</p></div>
+    <div class="resulttitle"><div class="kicker">DASHBOARD · v0.7.0</div><h1>Statistics</h1><p>Longitudinal snapshot before the next level.</p></div>
     <div class="ai-valuation-box"><div><span>AI VALORATION</span><b id="statsAiLevel">— / 15</b><small id="statsAiConfidence">Adaptive estimate</small></div><em>AI</em></div>
     <div class="learning-score-box"><div><span>LEARNING SCORE</span><b id="statsLearningScore">—</b><small id="statsLearningWindow">Long-term curve</small></div><div id="statsLearningDelta" class="learning-direction neutral">→</div></div>
     <div class="peer-box"><div class="peer-head"><span>TYPICAL LEARNER MODEL</span><b id="statsPeerDelta" class="peer-delta neutral">—</b></div><div class="peer-values"><div><b id="statsPeerYou">—</b><span>You</span></div><div><b id="statsPeerHealthy">—</b><span>Healthy min</span></div><div><b id="statsPeerExpected">—</b><span>Typical</span></div><div><b id="statsPeerStrong">—</b><span>Strong pace</span></div><div><b id="statsPeerDeltaMini">±0</b><span>Pace</span></div></div><small id="statsPeerLabel">Model-based typical range · not measured users</small></div>
@@ -619,7 +619,7 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 <section id="leagueScreen" class="screen dashboard-screen hidden">
   <div class="panel">
     <div class="top-dashboard-nav"><button id="leagueTopDashboardBtn" class="ghost">DASHBOARD</button></div>
-    <div class="resulttitle league-study-hero"><div class="kicker">VERB LEAGUE · v0.1.1</div><h1>Verb League Study</h1><p>La clasificación completa y el movimiento de las últimas 8 jornadas, con espacio para leer cada cambio con claridad.</p></div>
+    <div class="resulttitle league-study-hero"><div class="kicker">VERB LEAGUE · v0.7.0</div><h1>Verb League Study</h1><p>La clasificación completa y el movimiento de las últimas 8 jornadas, con espacio para leer cada cambio con claridad.</p></div>
     <div id="leagueStudyBody"></div>
     <p class="league-study-explain"><b>Cómo leerla:</b> ▲/▼ indica movimiento de puestos en la liga. No significa por sí solo que el mastery haya mejorado o empeorado: una skill también puede cambiar de posición porque otras la adelantan.</p>
     <div class="screen-nav"><button id="leagueBackBtn" class="primary">BACK TO STATISTICS</button></div>
@@ -706,7 +706,7 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 <section id="errorsScreen" class="screen review hidden">
   <div class="panel">
     <div class="top-dashboard-nav"><button id="errorsTopDashboardBtn" class="ghost">DASHBOARD</button></div>
-    <div class="resulttitle error-lab-hero"><div class="kicker">ERROR LAB · v0.1.1</div><h1>Latest mistakes</h1><p id="errorsCount"></p><small>Solo contiene los errores del nivel que acabas de terminar.</small></div>
+    <div class="resulttitle error-lab-hero"><div class="kicker">ERROR LAB · v0.7.0</div><h1>Latest mistakes</h1><p id="errorsCount"></p><small>Solo contiene los errores del nivel que acabas de terminar.</small></div>
     <div class="error-session-handoff"><button id="errorsSessionCopyBtn" class="secondary">COPY SESSION ERRORS JSON</button><small>Todos los errores del nivel + grupos + fingerprints + guía de contraste con español.</small></div>
     <div id="errorsFull" class="errors"></div>
     <div class="actions"><button id="errorsBackBtn" class="primary">BACK TO RESULTS</button></div>
@@ -722,7 +722,7 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 <script src="./lessons.js?v=0.3.6"></script>
 <script src="./keys.js?v=0.3.6"></script>
 <script src="./error-coach.js?v=0.3.6"></script>
-<script src="./app.js?v=0.6.0"></script>
+<script src="./app.js?v=0.7.0"></script>
 <script>
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   navigator.serviceWorker.register('./service-worker.js?v=0.3.6',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
