@@ -1,6 +1,6 @@
 
 const INITIAL_PRIORS = {};
-const APP_VERSION = "0.8.0";
+const APP_VERSION = "0.9.0";
 const STORAGE_KEY = "adaptive_verbs_catala_campaign1_v1";
 const GLOBAL_LEVEL_KEY = "adaptive_verbs_catala_global_level_v1";
 const SESSION_SIZE = 15;
@@ -1120,7 +1120,7 @@ function answer(pos,timeout=false){
   const shownQuestion=current.visibleQuestion||current.q,shownOptions=current.visibleOptions||current.display,load=promptLoadMeta(shownQuestion);
   const errorType=timeout?"TIMEOUT":ok?null:(current.displayMeta?.[pos]?.errorType||"OTHER");
   const rec={formId:current.formId,lemma:current.lemma,tenseId:current.tenseId,tenseLabel:current.tenseLabel,mood:current.mood,tense:current.tense,personCode:current.personCode,personLabel:current.personLabel,retrievalMode:current.retrievalMode||"RECOGNITION",errorType,selectedMeta:pos>=0?(current.displayMeta?.[pos]||null):null,level:state.level,qid:current.id,cat:current.cat,skill:current.skill,templateId:current.templateId,domain:current.domain,correct:ok,ms:Math.round(sec*1000),type,speedScore,occurrence:appearance,patternOccurrence:patternAppearance,review:!!previousSeen,gap:previousSeen?state.level-previousSeen.lastLevel:null,ts:Date.now(),question:shownQuestion,originalQuestion:current.q,userAnswer:pos>=0?shownOptions[pos]:"No answer",correctAnswer:shownOptions[current.correctPos],rule:current.rule,promptWords:load.words,promptChars:load.chars,readingLoad:load.band,targetTimeSec:current.targetTime||3.6,cueTimeSec:CUE_TIME,thinkTimeSec:THINK_TIME,preAnswerTimeSec:PRE_ANSWER_TIME,timeLimitSec:TIME_LIMIT,sessionMode:session.mode};
-  if(!ok){hideCorrectReveal();const echoCat=current.cat,echoAnswer=rec.correctAnswer;setTimeout(()=>{if(session)showMemoryEcho(echoCat,echoAnswer);},260);}else hideCorrectReveal();
+  hideCorrectReveal();
   try{flashGrammarFocus(shownQuestion,rec.correctAnswer,current.visibleFocus||current.focus||[]);}catch(e){console.error("Grammar focus flash failed",e);}
   state.history.push(rec);state.history=state.history.slice(-12000);state.activeTrainingMs=(state.activeTrainingMs||0)+rec.ms;state.totalAttempts++;session.records.push(rec);session.times.push(sec);if(ok)session.correct++;if(type==="automatic")session.automatic++;
   window.LanguagePoints?.recordAnswer?.({correct:ok,sec,timeLimit:TIME_LIMIT});
