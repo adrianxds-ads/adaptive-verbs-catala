@@ -1,6 +1,6 @@
 
 const INITIAL_PRIORS = {};
-const APP_VERSION = "0.9.1";
+const APP_VERSION = "0.9.2";
 const STORAGE_KEY = "adaptive_verbs_catala_campaign1_v1";
 const GLOBAL_LEVEL_KEY = "adaptive_verbs_catala_global_level_v1";
 const SESSION_SIZE = 15;
@@ -974,7 +974,7 @@ function renderGrowthTree(){
 const RELEASE_NOTES=["v0.3.0 · fixed master bank","120 verbs · 12,360 canonical slots · 19 paradigms","Tier 1 functional core active now; Tiers 2–3 unlock automatically","Original 180 audited pilot forms preserved exactly"];
 function renderReleaseInfo(){const host=$("releaseInfo"),online=location.protocol.startsWith("http"),build=`${online?"ONLINE":"LOCAL"} BUILD · v${APP_VERSION} · BANK ${CAMPAIGN?.version||"—"}`;if(host)host.innerHTML=`<details class="release-info"><summary><b>Adaptive Verbs · Català v${APP_VERSION}</b><span>WHAT’S NEW</span></summary><ul>${["v0.3.0 · banco maestro cerrado desde el principio","120 verbos · 12.360 slots canónicos · 19 paradigmas","Tier 1 funcional activo; Tier 2 en L15 y Tier 3 en L35 automáticamente","Tus 180 formas anteriores y todo el progreso se conservan"].map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></details>`;if($("buildVersion"))$("buildVersion").textContent=build;if($("endBuildVersion"))$("endBuildVersion").textContent=build;const meta=document.querySelector('meta[name="ae-version"]');if(meta)meta.setAttribute("content",APP_VERSION);document.title=`Adaptive Verbs · Català · Campaign 1 · v${APP_VERSION}`;}
 function medalCounts(){const rows=(state.sessionHistory||[]).filter(x=>!x.mode||x.mode==="training");return window.AdrianAchievements?.countsFromHistory?.(rows)||{blue:0,violet:0,gold:0};}
-function renderMedalSummary(){const html=window.AdrianAchievements?.medalStripHtml?.(medalCounts(),{context:"summary"})||"";const a=$("startMedals"),b=$("endMedals");if(a)a.innerHTML=html;if(b)b.innerHTML=html;}
+function renderMedalSummary(latest=null){const strip=window.AdrianAchievements?.medalStripHtml?.(medalCounts(),{context:"summary"})||"",badge=latest?window.AdrianAchievements?.badgeHtml?.(latest.correct,latest.total||SESSION_SIZE)||"":"";const a=$("startMedals"),b=$("endMedals");if(a)a.innerHTML=strip;if(b)b.innerHTML=strip+badge;}
 function renderStart(){
   ensureDailyKey();
   const st=overallStats(),sg=stageInfo(st.coverage),rb=ratingBand(st.rating),ai=aiValorationStats();
@@ -1154,7 +1154,7 @@ async function finishSession(){
   try{save();}catch(e){console.warn("Progress save unavailable",e);}secondaryEffect(()=>autoCopySessionHandoff(snap));try{renderEnd(snap,before);setEndHandoffStatus(false,false);}catch(e){console.warn("Results render recovered",e);}try{await settleUi(showLevelResolution(snap,before),5500,"End route");await settleUi(window.LanguagePoints?.awardLevel?.({correct:snap.correct,total:snap.total,target:snap.target,recovered:snap.recovered||0,mastered:snap.masteredRewards||0,level:completedLevel}),1600,"Language points");}finally{missionOverlay(false);showScreen("endScreen");}
 }
 function renderEnd(s,before){
-  renderMedalSummary();
+  renderMedalSummary(s);
   const st=overallStats(),sg=stageInfo(st.coverage),rb=ratingBand(st.rating),ai=aiValorationStats();
   setEndHandoffStatus(false,true);
   applyRatingTheme(st.rating);applyAiTheme(ai);
