@@ -7,8 +7,8 @@
 <meta name="theme-color" content="#10271d">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="ae-version" content="0.9.2">
-<title>Adaptive Verbs · Català · Campaign 1 · v0.9.2</title>
+<meta name="ae-version" content="0.9.3">
+<title>Adaptive Verbs · Català · Campaign 1 · v0.9.3</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <style>
@@ -544,6 +544,7 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 @media(prefers-reduced-motion:reduce){#questionText .cue-new{animation:none!important}}
 </style>
 <style id="mobile-viewport-containment">html,body{overflow-x:clip}</style>
+<link rel="stylesheet" href="./quiz-polish.css?v=20261003-1">
 </head>
 <body>
 <div class="app">
@@ -727,10 +728,10 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 <script>window.LANGUAGE_POINTS_CONFIG={appId:"catala",timeLimit:5};</script>
 <script src="./language-points.js?v=1.2.0"></script>
 <script src="./hub-path-game.js?v=1.0.0"></script>
-<script src="./app.js?v=0.9.2"></script>
+<script src="./app.js?v=0.9.3"></script>
 <script>
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
-  navigator.serviceWorker.register('./service-worker.js?v=storage20261003',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+  navigator.serviceWorker.register('./service-worker.js?v=polish20261003',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
 }
 </script>
 <script src="https://adrianxds-ads.github.io/adrian-core/components/hub-nav.js?v=9"></script>
