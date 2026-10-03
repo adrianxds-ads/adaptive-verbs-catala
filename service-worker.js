@@ -1,6 +1,6 @@
 const CACHE_PREFIX='avc-campaign1-';
-const CACHE='avc-campaign1-v0.9.2-recovery1';
-const ASSETS=['./','./index.html','./adrian-visual-system.js','./adrian-achievements.js','./lessons.js','./keys.js','./error-coach.js','./language-points.js','./hub-path-game.js','./app.js','./campaign-01.json','./manifest.webmanifest','./icon.svg'];
+const CACHE='avc-campaign1-v0.9.2-storage20261003';
+const ASSETS=['./progress-storage.js','./','./index.html','./adrian-visual-system.js','./adrian-achievements.js','./lessons.js','./keys.js','./error-coach.js','./language-points.js','./hub-path-game.js','./app.js','./campaign-01.json','./manifest.webmanifest','./icon.svg'];
 const CORE_RE=/\.(?:html|js|css|json|webmanifest)$/i;
 function withTimeout(req,ms,init={}){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);return fetch(req,{...init,signal:c.signal}).finally(()=>clearTimeout(t));}
 async function installCore(list){
