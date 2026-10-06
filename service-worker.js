@@ -1,6 +1,6 @@
 const CACHE_PREFIX='avc-campaign1-';
-const CACHE='avc-campaign1-v0.9.4-core-sync-20261004';
-const ASSETS=['./quiz-polish.css','./progress-storage.js','./','./index.html','/adrian-core/design/adrian-visual-system.js','/adrian-core/components/adrian-achievements.js','./lessons.js','./keys.js','./error-coach.js','./language-points.js','/adrian-core/components/hub-path-game.js','./app.js','./campaign-01.json','./manifest.webmanifest','./icon.svg'];
+const CACHE='avc-campaign1-v0.9.4-core-sync-20261004-performance-20261006';
+const ASSETS=['./quiz-polish.css','./progress-storage.js','./','./index.html','/adrian-core/design/adrian-visual-system.js','/adrian-core/components/adrian-achievements.js','/adrian-core/components/adrian-performance.js','./lessons.js','./keys.js','./error-coach.js','./language-points.js','/adrian-core/components/hub-path-game.js','./app.js','./performance-adapter.js','./campaign-01.json','./manifest.webmanifest','./icon.svg'];
 const CORE_RE=/\.(?:html|js|css|json|webmanifest)$/i;
 function withTimeout(req,ms,init={}){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);return fetch(req,{...init,signal:c.signal}).finally(()=>clearTimeout(t));}
 async function installCore(list){
