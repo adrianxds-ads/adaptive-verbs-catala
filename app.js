@@ -1,6 +1,6 @@
 
 const INITIAL_PRIORS = {};
-const APP_VERSION = "0.9.4";
+const APP_VERSION = "0.9.5";
 const STORAGE_KEY = "adaptive_verbs_catala_campaign1_v1";
 const READ_FIRST_KEY = "adaptive_verbs_catala_read_first_v1";
 const GLOBAL_LEVEL_KEY = "adaptive_verbs_catala_global_level_v1";
