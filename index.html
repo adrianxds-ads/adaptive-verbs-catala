@@ -8,8 +8,8 @@
 <meta name="theme-color" content="#10271d">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="ae-version" content="0.9.11">
-<title>Adaptive Verbs · Català · Campaign 1 · v0.9.11</title>
+<meta name="ae-version" content="0.9.12">
+<title>Adaptive Verbs · Català · Campaign 1 · v0.9.12</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <style>
@@ -569,6 +569,12 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 @media(max-width:520px){#startScreen .panel{padding:20px 16px!important}#startScreen .dashboard-menu{grid-template-columns:1fr!important}#startScreen .primary{min-width:0!important;width:100%}}
 
 </style>
+<style id="stats-league-headings">
+#statsScreen .stats-league-section{margin-top:16px}
+#statsScreen .league-section-heading{display:flex;flex-direction:column;gap:3px;margin:0 0 12px;padding:0 0 9px;border-bottom:1px solid rgba(255,255,255,.12);font-size:18px;line-height:1.25}
+#statsScreen .league-section-kicker{font-size:11px;font-weight:950;letter-spacing:.12em;color:var(--muted,#b6c6cc)}
+@media(max-width:520px){#statsScreen .league-section-heading{font-size:16px}}
+</style>
 </head>
 <body>
 <div class="app">
@@ -642,7 +648,7 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
     <div class="section target-stats-section"><h3>Target performance</h3><div class="grid target-grid"><div class="card"><b id="targetAvg">—</b><span>Avg target /15</span></div><div class="card"><b id="targetActualAvg">—</b><span>Avg actual /15</span></div><div class="card"><b id="targetDeltaAvg">—</b><span>Avg vs target</span></div><div class="card"><b id="targetHitRate">—</b><span>Targets met</span></div></div><div id="targetBreakdown" class="statusbox"></div></div>
     <div class="section reading-load-section"><h3>Reading load · fixed 6s</h3><p class="meta">Observational only · el cronòmetre es manté fix durant el pilot.</p><div class="grid"><div class="card"><b id="readingShort">—</b><span>Short · ≤12 words</span><small id="readingShortMeta">No evidence yet</small></div><div class="card"><b id="readingMedium">—</b><span>Medium · 13–17 words</span><small id="readingMediumMeta">No evidence yet</small></div><div class="card"><b id="readingLong">—</b><span>Long · ≥18 words</span><small id="readingLongMeta">No evidence yet</small></div></div><div id="readingLoadInsight" class="statusbox">Building evidence.</div></div>
     <div id="statsCampaign2" class="statusbox"></div>
-    <div class="section"><h3>Verb League · current ranking</h3><div id="statsSkills"></div></div><div class="section"><h3>Tense League · current ranking</h3><div id="statsTenses"></div></div>
+    <section class="section stats-league-section" aria-labelledby="statsVerbLeagueHeading"><h3 id="statsVerbLeagueHeading" class="league-section-heading"><span class="league-section-kicker">VERBS</span>Verb League · current ranking</h3><div id="statsSkills"></div></section><section class="section stats-league-section" aria-labelledby="statsTenseLeagueHeading"><h3 id="statsTenseLeagueHeading" class="league-section-heading"><span class="league-section-kicker">TENSES</span>Tense League · current ranking</h3><div id="statsTenses"></div></section>
     <div class="screen-nav"><button id="statsBackBtn" class="primary">BACK TO DASHBOARD</button></div>
   </div>
 </section>
@@ -698,7 +704,7 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
       <p id="endSub"></p><div id="endTarget" class="target-result hidden"></div>
     </div>
     <div class="end-quick-actions" aria-label="Quick result actions"><button id="topContinueBtn" class="primary">NEXT LEVEL</button><button id="topHomeBtn" class="secondary">DASHBOARD · PORTADA</button><button id="topErrorsBtn" class="secondary hidden">REVIEW ERRORS</button><button id="topFinalBtn" class="secondary hidden">FINAL CHALLENGE</button></div>
-    <div id="endAiHandoff" class="ai-handoff-card" aria-live="polite"><div><span>AI HANDOFF · GLOBAL + SESSION</span><b id="endHandoffStatus">PREPARING JSON…</b><small id="endHandoffMeta">Global progress + this level + session errors.</small></div><button id="endCopyHandoffBtn" class="secondary">COPY GLOBAL + SESSION JSON</button></div>
+    <div id="endAiHandoff" class="ai-handoff-card" aria-live="polite"><div><span>OPTIONAL · AI HANDOFF · GLOBAL + SESSION</span><b id="endHandoffStatus">PREPARING JSON…</b><small id="endHandoffMeta">Optional · global progress + this level + session errors.</small></div><button id="endCopyHandoffBtn" class="secondary">COPY GLOBAL + SESSION JSON</button></div>
     <div class="ai-valuation-box"><div><span>AI VALORATION</span><b id="endAiLevel">— / 15</b><small id="endAiConfidence">Estimación adaptativa</small></div><em>AI</em></div>
     <div id="endCampaignPracticeEstimate" class="campaign-eta-mini end-campaign-estimate"></div>
 
@@ -755,9 +761,9 @@ html,body,.app,.screen,.top,.toprow,.playfield,.question,.answer-stage,.answers,
 <script src="./keys.js?v=0.3.6"></script>
 <script src="./error-coach.js?v=0.3.6"></script>
 <script>window.LANGUAGE_POINTS_CONFIG={appId:"catala",timeLimit:5};</script>
-<script src="./language-points.js?v=0.9.11"></script>
+<script src="./language-points.js?v=0.9.12"></script>
 
-<script src="./app.js?v=0.9.11-oca2"></script>
+<script src="./app.js?v=0.9.12-oca2"></script>
 <script>
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   navigator.serviceWorker.register('./service-worker.js?v=performance-20261006b',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
