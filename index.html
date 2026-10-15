@@ -130,6 +130,11 @@ body.feedback-correct::after{background:rgba(50,210,126,.20)}body.feedback-wrong
 #coachScreen .coach-prompt-box textarea{font-size:13px;line-height:1.5;min-height:230px}
 #endScreen .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}#endScreen .actions .primary,#endScreen .actions .secondary{min-width:0}
 @media(max-width:520px){#startScreen .card b,#statsScreen .card b,#endScreen .card b{font-size:31px}#coachScreen .skillrow,#statsScreen .skillrow,#endScreen .skillrow{grid-template-columns:minmax(130px,1fr) 1fr 44px}#endScreen .actions{grid-template-columns:1fr 1fr}}
+/* Tense league: reserve measured space for names, progress and percentages. */
+html:root body[data-nucleo-game] #statsScreen #statsTenses .skillrow{grid-template-columns:minmax(0,1.6fr) minmax(30px,.65fr) 54px!important;gap:8px;min-width:0}
+#statsTenses .skillrow>div:first-child{min-width:0}
+#statsTenses .skillrow b,#statsTenses .skillrow small{display:block;overflow-wrap:break-word}
+#statsTenses .skillrow strong{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 </style>
 
 <style id="v117-style">
@@ -731,12 +736,16 @@ body {
   <div class="panel">
     <div class="top-dashboard-nav"><button id="statsTopDashboardBtn" class="ghost">DASHBOARD</button></div>
     <div class="resulttitle"><div class="kicker">DASHBOARD · v0.7.0</div><h1>Statistics</h1><p>Longitudinal snapshot before the next level.</p></div>
+    <details class="stats-native-details stats-native-models"><summary>Modelos y métricas avanzadas de esta aplicación</summary>
     <div class="ai-valuation-box"><div><span>AI VALORATION</span><b id="statsAiLevel">— / 15</b><small id="statsAiConfidence">Adaptive estimate</small></div><em>AI</em></div>
     <div class="learning-score-box"><div><span>LEARNING SCORE</span><b id="statsLearningScore">—</b><small id="statsLearningWindow">Long-term curve</small></div><div id="statsLearningDelta" class="learning-direction neutral">→</div></div>
     <div class="peer-box"><div class="peer-head"><span>TYPICAL LEARNER MODEL</span><b id="statsPeerDelta" class="peer-delta neutral">—</b></div><div class="peer-values"><div><b id="statsPeerYou">—</b><span>You</span></div><div><b id="statsPeerHealthy">—</b><span>Healthy min</span></div><div><b id="statsPeerExpected">—</b><span>Typical</span></div><div><b id="statsPeerStrong">—</b><span>Strong pace</span></div><div><b id="statsPeerDeltaMini">±0</b><span>Pace</span></div></div><small id="statsPeerLabel">Model-based typical range · not measured users</small></div>
     <div class="grid"><div class="card"><b id="statsCoverage">0%</b><span>Coverage</span></div><div class="card"><b id="statsMastery">0%</b><span>Mastery</span></div><div class="card"><b id="statsAccuracy">0%</b><span>Recent accuracy</span></div><div class="card lifetime-score-card"><b id="statsAllAccuracy">-</b><span>Avg hits /15</span></div><div class="card"><b id="statsAutomatic">0%</b><span>Automatic</span></div><div class="card"><b id="statsAvg">0.0s</b><span>Avg response</span></div><div class="card"><b id="statsTotal">0</b><span>Total answers</span></div><div class="card study-time-card"><b id="statsStudyTime">0s</b><span>Active training time</span></div></div>
+    </details>
     <section id="statsFocusPanel" class="focus-panel stats-focus-panel"></section>
+    <details class="stats-native-details stats-native-charts"><summary>Gráficas originales de la aplicación · análisis complementario</summary>
     <div class="charts stats-charts"><div class="section score-section"><div class="chart-title-row"><h3>Correct answers · /15</h3><button id="scoreExpandBtn" class="ghost small">EXPAND</button></div><div id="statsAccuracyChart"></div></div><div class="section learning-trend"><h3>Learning Curve · long-term</h3><div id="statsLearningChart"></div></div></div>
+    </details>
     <div class="section target-stats-section"><h3>Target performance</h3><div class="grid target-grid"><div class="card"><b id="targetAvg">—</b><span>Avg target /15</span></div><div class="card"><b id="targetActualAvg">—</b><span>Avg actual /15</span></div><div class="card"><b id="targetDeltaAvg">—</b><span>Avg vs target</span></div><div class="card"><b id="targetHitRate">—</b><span>Targets met</span></div></div><div id="targetBreakdown" class="statusbox"></div></div>
     <div class="section reading-load-section"><h3>Reading load · fixed 6s</h3><p class="meta">Observational only · el cronòmetre es manté fix durant el pilot.</p><div class="grid"><div class="card"><b id="readingShort">—</b><span>Short · ≤12 words</span><small id="readingShortMeta">No evidence yet</small></div><div class="card"><b id="readingMedium">—</b><span>Medium · 13–17 words</span><small id="readingMediumMeta">No evidence yet</small></div><div class="card"><b id="readingLong">—</b><span>Long · ≥18 words</span><small id="readingLongMeta">No evidence yet</small></div></div><div id="readingLoadInsight" class="statusbox">Building evidence.</div></div>
     <div id="statsCampaign2" class="statusbox"></div>
@@ -855,13 +864,13 @@ body {
 <script>window.LANGUAGE_POINTS_CONFIG={appId:"catala",timeLimit:5};</script>
 <script src="./language-points.js?v=0.10.0"></script>
 
-<script src="./app.js?v=0.10.5"></script>
+<script src="./app.js?v=0.10.16"></script>
 <script>
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
-  navigator.serviceWorker.register('./service-worker.js?v=0.10.5-readfirst-center',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+  navigator.serviceWorker.register('./service-worker.js?v=0.10.16',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
 }
 </script>
-<script src="./performance-adapter.js?v=1.1.0"></script><script src="/adrian-core/components/hub-nav.js?v=10-0d4fa97"></script>
+<script src="./performance-adapter.js?v=0.10.16"></script><script src="/adrian-core/components/hub-nav.js?v=10-0d4fa97"></script>
 
 <script id="unified-timer-script">
 (function() {
