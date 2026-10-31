@@ -867,7 +867,7 @@ body {
 <script src="./app.js?v=0.10.19"></script>
 <script>
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
-  navigator.serviceWorker.register('./service-worker.js?v=0.10.19',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+  navigator.serviceWorker.register('./service-worker.js?v=0.10.19-integrity2',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
 }
 </script>
 <script src="./performance-adapter.js?v=0.10.16"></script><script src="/adrian-core/components/hub-nav.js?v=10-0d4fa97"></script>
