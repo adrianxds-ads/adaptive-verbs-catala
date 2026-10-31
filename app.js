@@ -1,6 +1,6 @@
 
 const INITIAL_PRIORS = {};
-const APP_VERSION = "0.10.18";
+const APP_VERSION = "0.10.19";
 const STORAGE_KEY = "adaptive_verbs_catala_campaign1_v1";
 const READ_FIRST_KEY = "adaptive_verbs_catala_read_first_v1";
 const GLOBAL_LEVEL_KEY = "adaptive_verbs_catala_global_level_v1";
@@ -1345,3 +1345,19 @@ async function boot(){
   renderStart();showScreen("startScreen");
 }
 boot().catch(err=>{console.error(err);document.body.innerHTML='<div style="padding:30px;color:white;font-family:system-ui"><h1>Adaptive Verbs · Català</h1><p>No s’ha pogut carregar Campaign 1.</p></div>';});
+
+// App restored its own visible state: Sync recovery must update an idle UI immediately.
+window.addEventListener('adrian-sync-updated',()=>{
+  if(!state||!document.getElementById('gameScreen')?.classList.contains('hidden'))return;
+  Promise.resolve().then(async()=>{
+    const incoming=loadState();
+    const prev=state;
+    const s0=Math.max(0,Number(prev?.sessions)||0),a0=Math.max(0,Number(prev?.totalAttempts??prev?.answers)||0);
+    const s1=Math.max(0,Number(incoming?.sessions)||0),a1=Math.max(0,Number(incoming?.totalAttempts??incoming?.answers)||0);
+    const improved=s1>=s0&&a1>=a0&&(s1>s0||a1>a0);
+    const legacyRecovered=s0===0&&s1===0&&a0===0&&a1===0&&Number(incoming?.level)>Number(prev?.level);
+    if(!improved&&!legacyRecovered)return;
+    state=incoming;
+    renderStart();
+  }).catch(error=>console.error('Sync progress UI restore failed; stored records preserved',error));
+});
