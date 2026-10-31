@@ -22,3 +22,4 @@ self.addEventListener('fetch',e=>{
   })());
 });
 // Study-level display era release 0.10.17 · 2026-10-31. Progress storage unchanged.
+// Accumulated completed-game level 0.10.18; no progress migration (2026-10-31).
