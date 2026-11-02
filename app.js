@@ -1,6 +1,6 @@
 
 const INITIAL_PRIORS = {};
-const APP_VERSION = "0.10.20";
+const APP_VERSION = "0.10.21";
 const STORAGE_KEY = "adaptive_verbs_catala_campaign1_v1";
 const READ_FIRST_KEY = "adaptive_verbs_catala_read_first_v1";
 const GLOBAL_LEVEL_KEY = "adaptive_verbs_catala_global_level_v1";
@@ -961,7 +961,7 @@ function renderGrowthTree(){
   host.innerHTML=`<div class="growth-tree-canvas" data-tree-stage="${stage}"><svg viewBox="0 0 420 300" role="img" aria-label="Practice tree, growth stage ${stage} of 200"><defs><linearGradient id="treeTrunk" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#5d3827"/><stop offset=".55" stop-color="#76503a"/><stop offset="1" stop-color="#957258"/></linearGradient></defs><ellipse class="tree-ground" cx="210" cy="282" rx="78" ry="7"/> <g class="tree-branches" fill="none" stroke="url(#treeTrunk)" stroke-linecap="round" stroke-linejoin="round">${branch}</g><g class="tree-leaves">${leaf}</g></svg></div><div class="growth-tree-count"><b>${level.toLocaleString()}</b><span>LEVEL</span></div>`;
 }
 
-const RELEASE_NOTES=["v0.3.0 · fixed master bank","120 verbs · 12,360 canonical slots · 19 paradigms","Tier 1 functional core active now; Tiers 2–3 unlock automatically","Original 180 audited pilot forms preserved exactly"];
+const RELEASE_NOTES=["Sync: sin avisos flotantes en las partidas; guardado y reintentos conservados","v0.3.0 · fixed master bank","120 verbs · 12,360 canonical slots · 19 paradigms","Tier 1 functional core active now; Tiers 2–3 unlock automatically","Original 180 audited pilot forms preserved exactly"];
 function renderReleaseInfo(){const host=$("releaseInfo"),online=location.protocol.startsWith("http"),build=`${online?"ONLINE":"LOCAL"} BUILD · v${APP_VERSION} · BANK ${CAMPAIGN?.version||"—"}`;if(host)host.innerHTML=`<details class="release-info"><summary><b>Adaptive Verbs · Català v${APP_VERSION}</b><span>WHAT’S NEW</span></summary><ul>${["v0.3.0 · banco maestro cerrado desde el principio","120 verbos · 12.360 slots canónicos · 19 paradigmas","Tier 1 funcional activo; Tier 2 en L15 y Tier 3 en L35 automáticamente","Tus 180 formas anteriores y todo el progreso se conservan"].map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></details>`;if($("buildVersion"))$("buildVersion").textContent=build;if($("endBuildVersion"))$("endBuildVersion").textContent=build;const meta=document.querySelector('meta[name="ae-version"]');if(meta)meta.setAttribute("content",APP_VERSION);document.title=`Adaptive Verbs · Català · Campaign 1 · v${APP_VERSION}`;}
 function medalCounts(){const rows=(state.sessionHistory||[]).filter(x=>!x.mode||x.mode==="training");return window.AdrianAchievements?.countsFromHistory?.(rows)||{blue:0,violet:0,gold:0};}
 function renderMedalSummary(latest=null){const strip=window.AdrianAchievements?.medalStripHtml?.(medalCounts(),{context:"summary"})||"",badge=latest?window.AdrianAchievements?.badgeHtml?.(latest.correct,latest.total||SESSION_SIZE,medalCounts())||"":"";const a=$("startMedals"),b=$("endMedals");if(a)a.innerHTML=strip;if(b)b.innerHTML=strip+badge;}
